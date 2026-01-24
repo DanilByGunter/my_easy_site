@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Домашний сайт — прототип</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <a class="brand" href="#/">Домашний сайт</a>
+      <nav class="nav" id="nav"></nav>
+      <button class="burger" id="burger" aria-label="Меню">☰</button>
+    </header>
+
+    <main class="main" id="main" aria-live="polite"></main>
+
+    <footer class="footer">
+      <span>Прототип • без API • данные из data.js</span>
+    </footer>
+  </div>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="1"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Детали">
+      <div class="modal__head">
+        <div class="modal__title" id="modalTitle">Детали</div>
+        <button class="iconbtn" id="modalClose" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="modal__body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
