@@ -127,54 +127,83 @@ curl http://localhost:8000/api/v1/all
 
 ### Using Docker Compose (Recommended)
 
-1. Configure environment variables:
+**ВАЖНО**: Перед запуском необходимо задать учетные данные для базы данных PostgreSQL.
+
+1. **Настройка переменных окружения для базы данных**:
+
+Создайте файл `.env` в корневой директории проекта и укажите свои учетные данные:
+
 ```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env with production values:
-# - Set secure POSTGRES_PASSWORD
-# - Update ALLOWED_HOSTS with your domain
-# - Update CORS_ORIGINS with your domain
-# - Set ENVIRONMENT=production
+# Создайте .env файл в корне проекта (my_easy_site/.env)
+cat > .env << 'EOF'
+# PostgreSQL Database Configuration
+POSTGRES_USER=your_db_username
+POSTGRES_PASSWORD=your_secure_password_here
+POSTGRES_DB=personal_site
+
+# Security Configuration (опционально)
+ALLOWED_HOSTS=localhost,127.0.0.1,your-domain.com
+CORS_ORIGINS=http://localhost,http://127.0.0.1,https://your-domain.com
+EOF
 ```
 
-2. Build and run all services:
+**Замените следующие значения на свои**:
+- `your_db_username` - имя пользователя PostgreSQL (например: `myuser`)
+- `your_secure_password_here` - надежный пароль (например: `MySecurePass123!`)
+- `your-domain.com` - ваш домен (если планируете развертывание в интернете)
+
+2. **Запуск всех сервисов**:
 ```bash
 docker-compose up -d --build
 ```
 
-3. Run database migrations (first time):
+3. **Создание и применение миграций базы данных** (первый запуск):
 ```bash
+# Создание первой миграции
+docker-compose exec backend alembic revision --autogenerate -m "Initial migration"
+
+# Применение миграций
 docker-compose exec backend alembic upgrade head
 ```
 
-4. Seed database with initial data (first time):
+4. **Заполнение базы данных тестовыми данными** (первый запуск):
 ```bash
 docker-compose exec backend python seed_db.py
 ```
 
-5. Access the application:
-- Frontend: http://localhost (served by nginx)
-- Backend API: http://localhost/api/v1/all
-- Health check: http://localhost/health
+5. **Доступ к приложению**:
+- **Frontend**: http://localhost (обслуживается nginx)
+- **Backend API**: http://localhost/api/v1/all
+- **Health check**: http://localhost/health
+- **База данных**: localhost:5432 (доступна извне для администрирования)
+
+### Подключение к базе данных
+
+Вы можете подключиться к PostgreSQL используя любой клиент:
+- **Host**: localhost
+- **Port**: 5432
+- **Database**: значение из `POSTGRES_DB`
+- **Username**: значение из `POSTGRES_USER`
+- **Password**: значение из `POSTGRES_PASSWORD`
 
 ### Architecture Overview
 
-The production setup includes:
-- **nginx**: Reverse proxy, static file serving, security headers
-- **backend**: FastAPI application with PostgreSQL
-- **frontend**: Static files served by nginx
-- **db**: PostgreSQL database with persistent storage
+Production setup включает:
+- **nginx**: Reverse proxy, статические файлы, security headers
+- **backend**: FastAPI приложение с PostgreSQL
+- **frontend**: Статические файлы через nginx
+- **db**: PostgreSQL база данных с persistent storage
 
 ### Security Features
 
-- CORS restrictions for production domains
-- Rate limiting via nginx
+- CORS ограничения для production доменов
+- Rate limiting через nginx
 - Security headers (CSP, X-Frame-Options, etc.)
-- Input validation and sanitization
-- SQL injection protection via SQLAlchemy ORM
-- No credentials in CORS (read-only API)
+- Валидация и санитизация входных данных
+- Защита от SQL injection через SQLAlchemy ORM
+- Read-only API без аутентификации
 - Trusted host middleware
-- Production docs disabled
+- Production docs отключены
 
 ### Manual Deployment
 

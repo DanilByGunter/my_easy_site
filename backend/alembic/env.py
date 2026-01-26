@@ -16,11 +16,20 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set the sqlalchemy.url from environment variable
-from dotenv import load_dotenv
-load_dotenv()
+# Get database URL from environment variables
+database_url = os.getenv("DATABASE_URL")
+if not database_url:
+    # Construct from individual environment variables
+    postgres_user = os.getenv("POSTGRES_USER")
+    postgres_password = os.getenv("POSTGRES_PASSWORD")
+    postgres_db = os.getenv("POSTGRES_DB")
 
-database_url = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@db:5432/personal_site")
+    if not all([postgres_user, postgres_password, postgres_db]):
+        raise ValueError("Database connection parameters not found in environment variables. "
+                        "Please set POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB.")
+
+    database_url = f"postgresql+asyncpg://{postgres_user}:{postgres_password}@db:5432/{postgres_db}"
+
 config.set_main_option("sqlalchemy.url", database_url)
 
 # add your model's MetaData object here

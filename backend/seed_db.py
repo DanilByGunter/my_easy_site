@@ -10,15 +10,22 @@ from app.models.plants import Plant
 from app.models.projects import Project
 from app.models.research import Infographic, Publication
 from app.models.vinyl import VinylRecord
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-load_dotenv()
+# Get database URL from environment variables
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # Construct from individual environment variables
+    postgres_user = os.getenv("POSTGRES_USER")
+    postgres_password = os.getenv("POSTGRES_PASSWORD")
+    postgres_db = os.getenv("POSTGRES_DB")
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql+asyncpg://user:password@localhost:5432/personal_site"
-)
+    if not all([postgres_user, postgres_password, postgres_db]):
+        raise ValueError("Database connection parameters not found in environment variables. "
+                         "Please set POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB.")
+
+    DATABASE_URL = f"postgresql+asyncpg://{postgres_user}:{postgres_password}@db:5432/{postgres_db}"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
