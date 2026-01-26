@@ -129,23 +129,52 @@ curl http://localhost:8000/api/v1/all
 
 1. Configure environment variables:
 ```bash
-cp backend/.env.example .env
-# Edit .env with production values
+cp backend/.env.example backend/.env
+# Edit backend/.env with production values:
+# - Set secure POSTGRES_PASSWORD
+# - Update ALLOWED_HOSTS with your domain
+# - Update CORS_ORIGINS with your domain
+# - Set ENVIRONMENT=production
 ```
 
-2. Build and run:
+2. Build and run all services:
 ```bash
 docker-compose up -d --build
 ```
 
-3. Seed database (first time):
+3. Run database migrations (first time):
+```bash
+docker-compose exec backend alembic upgrade head
+```
+
+4. Seed database with initial data (first time):
 ```bash
 docker-compose exec backend python seed_db.py
 ```
 
-4. Access the application:
-- Backend API: http://localhost:8000
-- Health check: http://localhost:8000/health
+5. Access the application:
+- Frontend: http://localhost (served by nginx)
+- Backend API: http://localhost/api/v1/all
+- Health check: http://localhost/health
+
+### Architecture Overview
+
+The production setup includes:
+- **nginx**: Reverse proxy, static file serving, security headers
+- **backend**: FastAPI application with PostgreSQL
+- **frontend**: Static files served by nginx
+- **db**: PostgreSQL database with persistent storage
+
+### Security Features
+
+- CORS restrictions for production domains
+- Rate limiting via nginx
+- Security headers (CSP, X-Frame-Options, etc.)
+- Input validation and sanitization
+- SQL injection protection via SQLAlchemy ORM
+- No credentials in CORS (read-only API)
+- Trusted host middleware
+- Production docs disabled
 
 ### Manual Deployment
 

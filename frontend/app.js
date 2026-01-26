@@ -2,6 +2,43 @@
   const $ = (sel, el=document) => el.querySelector(sel);
   const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
 
+  // Global data store
+  let DATA = null;
+
+  // API configuration
+  const API_BASE = '/api/v1';
+
+  // Load data from API
+  async function loadData() {
+    try {
+      const response = await fetch(`${API_BASE}/all`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      DATA = await response.json();
+      return DATA;
+    } catch (error) {
+      console.error('Failed to load data from API:', error);
+      toast('Ошибка загрузки данных. Попробуйте обновить страницу.');
+      // Fallback to empty data structure
+      DATA = {
+        about: { bio: 'Ошибка загрузки данных' },
+        vinylGenres: [],
+        vinyl: [],
+        books: [],
+        coffeeBrands: [],
+        coffee: [],
+        figures: [],
+        projects: [],
+        publications: [],
+        infographics: [],
+        plants: [],
+        media: { externalWishUrl: '', links: [] }
+      };
+      return DATA;
+    }
+  }
+
   const routes = [
     { path: '/', label: 'Home', render: renderHome },
     { path: '/vinyl', label: 'Vinyl', render: renderVinyl },
@@ -107,7 +144,7 @@
 
   function renderHome(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Home', window.DATA.about.bio));
+    root.appendChild(sectionHead('Home', DATA.about.bio));
 
     const grid = document.createElement('div');
     grid.className = 'grid';
@@ -170,7 +207,7 @@
     const chips = document.createElement('div');
     chips.className = 'chips';
 
-    window.DATA.vinylGenres.forEach(g => {
+    DATA.vinylGenres.forEach(g => {
       const ch = document.createElement('button');
       ch.type='button';
       ch.className = 'chip' + (state.vinyl.selectedGenres.has(g) ? ' active' : '');
@@ -210,7 +247,7 @@
       return okQ && okG;
     }
 
-    const items = window.DATA.vinyl.filter(matches);
+    const items = DATA.vinyl.filter(matches);
 
     items.forEach(v => {
       const card = document.createElement('div');
@@ -249,7 +286,7 @@
 
     // группируем по жанрам
     const byGenre = new Map();
-    window.DATA.books.forEach(b => {
+    DATA.books.forEach(b => {
       const g = b.genre || 'Other';
       if(!byGenre.has(g)) byGenre.set(g, []);
       byGenre.get(g).push(b);
@@ -334,8 +371,8 @@
       grid.className = 'brandGrid';
       grid.style.marginTop = '12px';
 
-      window.DATA.coffeeBrands.forEach(br => {
-        const coffees = window.DATA.coffee.filter(c => c.brandId === br.id);
+      DATA.coffeeBrands.forEach(br => {
+        const coffees = DATA.coffee.filter(c => c.brandId === br.id);
         const avgs = coffees.map(c => avgRating(c.reviews)).filter(x => x != null);
         const avg = avgs.length ? (avgs.reduce((a,x)=>a+x,0)/avgs.length) : null;
 
@@ -364,7 +401,7 @@
 
       function showBrandCoffees(br){
         // перерендерим секцию ниже — простым способом: модалка
-        const coffees = window.DATA.coffee.filter(c => c.brandId === br.id);
+        const coffees = DATA.coffee.filter(c => c.brandId === br.id);
         const body = coffees.map(c => coffeeCardHtml(c, br)).join('');
         openModal(`Кофе бренда: ${br.name}`, `
           <div class="coffeeGrid">${body}</div>
@@ -376,7 +413,7 @@
           $$('#modalBody .coffeeCard').forEach(el => {
             el.addEventListener('click', () => {
               const id = el.getAttribute('data-id');
-              const coffee = window.DATA.coffee.find(x => x.id === id);
+              const coffee = DATA.coffee.find(x => x.id === id);
               if(coffee) openCoffeeDetails(coffee);
             });
           });
@@ -388,8 +425,8 @@
       grid.className = 'coffeeGrid';
       grid.style.marginTop = '12px';
 
-      window.DATA.coffee.forEach(c => {
-        const br = window.DATA.coffeeBrands.find(b => b.id === c.brandId);
+      DATA.coffee.forEach(c => {
+        const br = DATA.coffeeBrands.find(b => b.id === c.brandId);
         const card = document.createElement('div');
         card.className = 'coffeeCard';
         card.innerHTML = coffeeCardHtml(c, br);
@@ -421,7 +458,7 @@
   }
 
   function openCoffeeDetails(c){
-    const br = window.DATA.coffeeBrands.find(b => b.id === c.brandId);
+    const br = DATA.coffeeBrands.find(b => b.id === c.brandId);
     const avg = avgRating(c.reviews);
 
     const rows = (c.reviews || []).map(r => `
@@ -465,7 +502,7 @@
     const grid = document.createElement('div');
     grid.className = 'hangerWrap';
 
-    window.DATA.figures.forEach(f => {
+    DATA.figures.forEach(f => {
       const card = document.createElement('div');
       card.className = 'hanger';
       card.innerHTML = `
@@ -488,7 +525,7 @@
     const grid = document.createElement('div');
     grid.className = 'grid';
 
-    window.DATA.projects.forEach(p => {
+    DATA.projects.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
@@ -519,7 +556,7 @@
     pubList.className = 'list';
     pubList.style.marginTop = '10px';
 
-    window.DATA.publications.forEach(x => {
+    DATA.publications.forEach(x => {
       const it = document.createElement('div');
       it.className = 'item';
       it.innerHTML = `
@@ -548,7 +585,7 @@
     grid.className = 'grid';
     grid.style.marginTop = '10px';
 
-    window.DATA.infographics.forEach(i => {
+    DATA.infographics.forEach(i => {
       const c = document.createElement('div');
       c.className = 'card';
       c.innerHTML = `
@@ -572,7 +609,7 @@
     const grid = document.createElement('div');
     grid.className = 'grid';
 
-    window.DATA.plants.forEach(p => {
+    DATA.plants.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
@@ -605,14 +642,14 @@
       </div>
     `;
     ext.querySelector('#openWish')?.addEventListener('click', () => {
-      window.open(window.DATA.media.externalWishUrl, '_blank', 'noopener');
+      window.open(DATA.media.externalWishUrl, '_blank', 'noopener');
     });
 
     const list = document.createElement('div');
     list.className = 'list';
     list.style.marginTop = '12px';
 
-    window.DATA.media.links.forEach(l => {
+    DATA.media.links.forEach(l => {
       const item = document.createElement('div');
       item.className = 'item';
       item.innerHTML = `
@@ -700,9 +737,28 @@
     });
   }
 
+  // Initialize app
+  async function init() {
+    // Show loading state
+    const main = $('#main');
+    main.innerHTML = '<div class="fadeIn" style="text-align: center; padding: 2rem;">Загрузка данных...</div>';
+
+    // Load data from API
+    await loadData();
+
+    // Initialize UI
+    initNav();
+    initModal();
+    if(!location.hash) location.hash = '#/';
+    render();
+  }
+
   window.addEventListener('hashchange', render);
-  initNav();
-  initModal();
-  if(!location.hash) location.hash = '#/';
-  render();
+
+  // Start the app
+  init().catch(error => {
+    console.error('Failed to initialize app:', error);
+    const main = $('#main');
+    main.innerHTML = '<div class="fadeIn" style="text-align: center; padding: 2rem; color: #ff6b6b;">Ошибка загрузки приложения. Попробуйте обновить страницу.</div>';
+  });
 })();
