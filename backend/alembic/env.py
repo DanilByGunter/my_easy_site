@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -15,17 +16,24 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# Set the sqlalchemy.url from environment variable
+from dotenv import load_dotenv
+load_dotenv()
+
+database_url = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@db:5432/personal_site")
+config.set_main_option("sqlalchemy.url", database_url)
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 from app.models.common import Base
-from app.models.vinyl import VinylRecord
-from app.models.books import Book
-from app.models.coffee import Coffee, CoffeeBrand, CoffeeReview
-from app.models.figures import Figure
-from app.models.projects import Project
-from app.models.research import Publication, Infographic
-from app.models.plants import Plant
-from app.models.media import MediaLink, SiteConfig
+from app.models.vinyl import VinylRecord  # noqa: F401
+from app.models.books import Book  # noqa: F401
+from app.models.coffee import Coffee, CoffeeBrand, CoffeeReview  # noqa: F401
+from app.models.figures import Figure  # noqa: F401
+from app.models.projects import Project  # noqa: F401
+from app.models.research import Publication, Infographic  # noqa: F401
+from app.models.plants import Plant  # noqa: F401
+from app.models.media import MediaLink, SiteConfig  # noqa: F401
 
 target_metadata = Base.metadata
 
