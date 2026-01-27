@@ -205,6 +205,17 @@ Production setup включает:
 - Trusted host middleware
 - Production docs отключены
 
+## Решение проблем
+
+Если возникают проблемы с развертыванием (особенно ошибки аутентификации PostgreSQL), см. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
+
+**Частая проблема**: Ошибка `password authentication failed for user "postgres"` решается удалением старого volume:
+```bash
+docker-compose down
+docker volume rm my_easy_site_postgres_data
+docker-compose up -d --build
+```
+
 ### Manual Deployment
 
 1. Set up PostgreSQL database

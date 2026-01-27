@@ -28,20 +28,42 @@ class AllDataService:
     async def get_all_data(self) -> dict:
         """Aggregate all data and return as dict matching frontend contract"""
 
-        # Fetch all data in parallel
-        vinyl_records = await self.vinyl_repo.list()
-        books = await self.book_repo.list()
-        coffees = await self.coffee_repo.list_with_reviews()
-        coffee_brands = await self.coffee_brand_repo.list()
-        figures = await self.figure_repo.list()
-        projects = await self.project_repo.list()
-        publications = await self.publication_repo.list()
-        infographics = await self.infographic_repo.list()
-        plants = await self.plant_repo.list()
-        media_links = await self.media_link_repo.list()
-        site_config = await self.site_config_repo.list()
+        try:
+            # Fetch all data in parallel
+            vinyl_records = await self.vinyl_repo.list() or []
+            books = await self.book_repo.list() or []
+            coffees = await self.coffee_repo.list_with_reviews() or []
+            coffee_brands = await self.coffee_brand_repo.list() or []
+            figures = await self.figure_repo.list() or []
+            projects = await self.project_repo.list() or []
+            publications = await self.publication_repo.list() or []
+            infographics = await self.infographic_repo.list() or []
+            plants = await self.plant_repo.list() or []
+            media_links = await self.media_link_repo.list() or []
+            site_config = await self.site_config_repo.list() or []
 
-        site_config = site_config[0] if site_config else None
+            site_config = site_config[0] if site_config else None
+        except Exception as e:
+            # Log the error and return empty data structure
+            print(f"Error fetching data: {e}")
+            # Return empty data structure that matches frontend expectations
+            return {
+                "about": {"bio": ""},
+                "vinylGenres": [],
+                "vinyl": [],
+                "books": [],
+                "coffeeBrands": [],
+                "coffee": [],
+                "figures": [],
+                "projects": [],
+                "publications": [],
+                "infographics": [],
+                "plants": [],
+                "media": {
+                    "externalWishUrl": "",
+                    "links": [],
+                },
+            }
 
         # Build response structure
         result = {

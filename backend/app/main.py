@@ -23,12 +23,16 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # CORS with restricted origins for production
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost,http://127.0.0.1").split(",")
+# Add wildcard for development if no specific origins are set
+if cors_origins == ["http://localhost,http://127.0.0.1"]:
+    cors_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=False,  # No credentials needed for read-only API
     allow_methods=["GET", "HEAD", "OPTIONS"],  # Only allow safe methods
-    allow_headers=["Accept", "Accept-Language", "Content-Language", "Content-Type"],
+    allow_headers=["*"],  # Allow all headers for development
 )
 
 
