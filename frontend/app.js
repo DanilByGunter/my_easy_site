@@ -153,7 +153,7 @@
     grid.className = 'grid';
 
     const cards = [
-      {to:'#/vinyl', kicker:'Vinyl', title:'Пластинки', desc:'Круги-диски + поиск и фильтр по жанрам.'},
+      {to:'#/vinyl', kicker:'Vinyl', title:'Пластинки', desc:'Поиск и фильтр по жанрам.'},
       {to:'#/books', kicker:'Books', title:'Книги', desc:'Полки по жанрам, корешки с шириной от названия.'},
       {to:'#/coffee', kicker:'Coffee', title:'Кофе', desc:'2 режима: бренды и кофе, отзывы по способам (espresso/cappuccino/filter).'},
       {to:'#/figures', kicker:'Figures', title:'Фигурки', desc:'Подвешенные карточки с легким покачиванием.'},
