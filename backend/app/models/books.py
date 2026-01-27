@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Text, JSON
 
 from .common import Base, UUIDMixin
 
@@ -12,3 +12,7 @@ class Book(Base, UUIDMixin):
     language = Column(String, nullable=True)
     format = Column(String, nullable=True)
     review = Column(String, nullable=True)
+
+    # Новые поля для цитат и авторского мнения
+    quotes = Column(JSON, nullable=True)  # Массив объектов {text: str, page?: int}
+    opinion = Column(Text, nullable=True)  # Авторское мнение о книге

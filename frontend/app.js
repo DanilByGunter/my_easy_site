@@ -56,6 +56,9 @@
       q: '',
       selectedGenres: new Set(),
     },
+    books: {
+      q: '',
+    },
     coffee: {
       mode: 'brands', // brands | coffees
       selectedBrandId: null,
@@ -201,11 +204,12 @@
     input.value = state.vinyl.q;
     input.addEventListener('input', (e) => {
       state.vinyl.q = e.target.value;
-      repaint();
+      updateVinylResults();
     });
 
     const chips = document.createElement('div');
     chips.className = 'chips';
+    chips.style.marginTop = '16px';
 
     DATA.vinylGenres.forEach(g => {
       const ch = document.createElement('button');
@@ -215,7 +219,7 @@
       ch.addEventListener('click', () => {
         if(state.vinyl.selectedGenres.has(g)) state.vinyl.selectedGenres.delete(g);
         else state.vinyl.selectedGenres.add(g);
-        repaint();
+        updateVinylResults();
       });
       chips.appendChild(ch);
     });
@@ -226,7 +230,8 @@
     clear.addEventListener('click', () => {
       state.vinyl.q='';
       state.vinyl.selectedGenres.clear();
-      render();
+      input.value = '';
+      updateVinylResults();
     });
 
     controls.appendChild(input);
@@ -235,9 +240,8 @@
     root.appendChild(controls);
     root.appendChild(chips);
 
-    const grid = document.createElement('div');
-    grid.className = 'vinylGrid';
-    grid.style.marginTop = '12px';
+    const resultsContainer = document.createElement('div');
+    resultsContainer.id = 'vinylResults';
 
     function matches(v){
       const q = state.vinyl.q.trim().toLowerCase();
@@ -247,35 +251,44 @@
       return okQ && okG;
     }
 
-    const items = DATA.vinyl.filter(matches);
+    function updateVinylResults(){
+      const container = document.getElementById('vinylResults');
+      if (!container) return;
 
-    items.forEach(v => {
-      const card = document.createElement('div');
-      card.className = 'vinylCard';
-      card.innerHTML = `
-        <div class="disc"><div class="label"></div></div>
-        <div class="vmeta">
-          <div class="a">${escapeHtml(v.artist)}</div>
-          <div class="t">${escapeHtml(v.title)}${v.year ? ` • ${v.year}` : ''}</div>
-          <div class="t">${v.genres.map(escapeHtml).join(' · ')}</div>
-        </div>
-      `;
-      grid.appendChild(card);
-    });
+      container.innerHTML = '';
 
-    if(items.length === 0){
-      const empty = document.createElement('div');
-      empty.className = 'item';
-      empty.textContent = 'Ничего не найдено по текущим фильтрам.';
-      root.appendChild(empty);
-    } else {
-      root.appendChild(grid);
+      const items = DATA.vinyl.filter(matches);
+
+      if(items.length === 0){
+        const empty = document.createElement('div');
+        empty.className = 'item';
+        empty.textContent = 'Ничего не найдено по текущим фильтрам.';
+        container.appendChild(empty);
+      } else {
+        const grid = document.createElement('div');
+        grid.className = 'vinylGrid';
+        grid.style.marginTop = '12px';
+
+        items.forEach(v => {
+          const card = document.createElement('div');
+          card.className = 'vinylCard';
+          card.innerHTML = `
+            <div class="disc"><div class="label"></div></div>
+            <div class="vmeta">
+              <div class="a">${escapeHtml(v.artist)}</div>
+              <div class="t">${escapeHtml(v.title)}${v.year ? ` • ${v.year}` : ''}</div>
+              <div class="t">${v.genres.map(escapeHtml).join(' · ')}</div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        container.appendChild(grid);
+      }
     }
 
-    function repaint(){
-      // перерендерим только страницу целиком (достаточно для прототипа)
-      render();
-    }
+    root.appendChild(resultsContainer);
+    updateVinylResults();
 
     return root;
   }
@@ -284,59 +297,194 @@
     const root = document.createElement('div');
     root.appendChild(sectionHead('Books', 'Полки по жанрам. Ширина корешка зависит от длины названия.'));
 
-    // группируем по жанрам
-    const byGenre = new Map();
-    DATA.books.forEach(b => {
-      const g = b.genre || 'Other';
-      if(!byGenre.has(g)) byGenre.set(g, []);
-      byGenre.get(g).push(b);
+    // Добавляем поиск
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'row';
+    searchContainer.style.marginBottom = '16px';
+
+    const searchInput = document.createElement('input');
+    searchInput.className = 'input';
+    searchInput.placeholder = 'Поиск по названию книги...';
+    searchInput.value = state.books.q;
+    searchInput.addEventListener('input', (e) => {
+      state.books.q = e.target.value;
+      updateBooksResults();
     });
 
-    for(const [genre, books] of byGenre.entries()){
-      const shelf = document.createElement('div');
-      shelf.className = 'shelf';
-      shelf.style.marginBottom = '12px';
-      shelf.innerHTML = `
-        <div class="shelfTitle">
-          <div class="g">${escapeHtml(genre)}</div>
-          <div class="bar"></div>
-        </div>
-      `;
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'btn';
+    clearBtn.textContent = 'Сбросить';
+    clearBtn.addEventListener('click', () => {
+      state.books.q = '';
+      searchInput.value = '';
+      updateBooksResults();
+    });
 
-      const spines = document.createElement('div');
-      spines.className = 'spines';
+    searchContainer.appendChild(searchInput);
+    searchContainer.appendChild(clearBtn);
+    root.appendChild(searchContainer);
 
-      books.forEach(b => {
-        const w = spineWidth(b.title);
-        const spine = document.createElement('div');
-        spine.className = 'spine';
-        spine.style.width = w + 'px';
-        spine.title = `${b.title} — ${b.author || ''}`;
-        spine.innerHTML = `
-          <div class="spineSmall">${escapeHtml(b.language || '')} ${escapeHtml(b.format || '')}</div>
-          <div class="spineText">${escapeHtml(b.title)}</div>
-        `;
-        spine.addEventListener('click', () => {
-          openModal('Книга', `
-            <div class="list">
-              <div class="item">
-                <div class="itemTitle">${escapeHtml(b.title)}</div>
-                <div class="itemMeta">Автор: ${escapeHtml(b.author || '—')}</div>
-                <div class="itemMeta">Язык: ${escapeHtml(b.language || '—')}</div>
-                <div class="itemMeta">Формат: ${escapeHtml(b.format || '—')}</div>
-                <div class="itemMeta">Жанр: ${escapeHtml(b.genre || '—')}</div>
-              </div>
-            </div>
-          `);
-        });
-        spines.appendChild(spine);
+    const resultsContainer = document.createElement('div');
+    resultsContainer.id = 'booksResults';
+    root.appendChild(resultsContainer);
+
+    function updateBooksResults(){
+      const container = document.getElementById('booksResults');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      // Фильтруем книги по поиску
+      const filteredBooks = DATA.books.filter(b => {
+        const q = state.books.q.trim().toLowerCase();
+        return !q || b.title.toLowerCase().includes(q) || (b.author && b.author.toLowerCase().includes(q));
       });
 
-      shelf.appendChild(spines);
-      root.appendChild(shelf);
+      if (filteredBooks.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'item';
+        empty.textContent = 'Ничего не найдено по запросу.';
+        container.appendChild(empty);
+        return;
+      }
+
+      // группируем по жанрам
+      const byGenre = new Map();
+      filteredBooks.forEach(b => {
+        const g = b.genre || 'Other';
+        if(!byGenre.has(g)) byGenre.set(g, []);
+        byGenre.get(g).push(b);
+      });
+
+      for(const [genre, books] of byGenre.entries()){
+        const shelf = document.createElement('div');
+        shelf.className = 'shelf';
+        shelf.style.marginBottom = '12px';
+        shelf.innerHTML = `
+          <div class="shelfTitle">
+            <div class="g">${escapeHtml(genre)}</div>
+            <div class="bar"></div>
+          </div>
+        `;
+
+        const spines = document.createElement('div');
+        spines.className = 'spines';
+
+        books.forEach(b => {
+          const w = spineWidth(b.title);
+          const spine = document.createElement('div');
+          spine.className = 'spine';
+          spine.style.width = w + 'px';
+          spine.title = `${b.title} — ${b.author || ''}`;
+          spine.innerHTML = `
+            <div class="spineSmall">${escapeHtml(b.language || '')} ${escapeHtml(b.format || '')}</div>
+            <div class="spineText">${escapeHtml(b.title)}</div>
+          `;
+          spine.addEventListener('click', () => {
+            openBookModal(b);
+          });
+          spines.appendChild(spine);
+        });
+
+        shelf.appendChild(spines);
+        container.appendChild(shelf);
+      }
     }
 
+    updateBooksResults();
     return root;
+  }
+
+  function openBookModal(book) {
+    const quotes = book.quotes || [];
+    const opinion = book.opinion || '';
+
+    const modalContent = `
+      <div class="item">
+        <div class="itemTitle">${escapeHtml(book.title)}</div>
+        <div class="itemMeta">Автор: ${escapeHtml(book.author || '—')}</div>
+        <div class="itemMeta">Язык: ${escapeHtml(book.language || '—')}</div>
+        <div class="itemMeta">Формат: ${escapeHtml(book.format || '—')}</div>
+        <div class="itemMeta">Жанр: ${escapeHtml(book.genre || '—')}</div>
+      </div>
+
+      <div style="height:16px"></div>
+
+      <div class="tabs" id="bookTabs">
+        <button class="tab active" data-tab="quotes">Цитаты</button>
+        <button class="tab" data-tab="opinion">Авторское мнение</button>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div id="bookTabContent">
+        <div id="quotesTab" class="book-tab-panel">
+          ${quotes.length > 0 ?
+            quotes.map(quote => `
+              <div class="quote-block" style="margin-bottom: 12px; padding: 14px; border-radius: var(--radius2); border: 1px solid var(--line); background: rgba(255,255,255,.02); position: relative;">
+                <div style="font-style: italic; line-height: 1.5; margin-bottom: 8px;">"${escapeHtml(quote.text)}"</div>
+                ${quote.page ? `<div style="color: var(--muted); font-size: 12px;">Стр. ${quote.page}</div>` : ''}
+                <button class="copy-quote-btn" style="position: absolute; top: 8px; right: 8px; padding: 4px 8px; border: 1px solid var(--line); background: rgba(255,255,255,.04); border-radius: 6px; font-size: 11px; cursor: pointer;" data-text="${escapeHtml(quote.text)}">📋</button>
+              </div>
+            `).join('')
+            : '<div class="item"><div class="itemMeta">Цитаты пока не добавлены</div></div>'
+          }
+        </div>
+
+        <div id="opinionTab" class="book-tab-panel" style="display: none;">
+          ${opinion ?
+            `<div class="item"><div class="itemMeta" style="line-height: 1.6;">${escapeHtml(opinion).replace(/\n/g, '<br>')}</div></div>`
+            : '<div class="item"><div class="itemMeta">Авторское мнение пока не добавлено</div></div>'
+          }
+        </div>
+      </div>
+    `;
+
+    openModal(`${book.title}`, modalContent);
+
+    // Добавляем обработчики для вкладок
+    setTimeout(() => {
+      const tabs = document.querySelectorAll('#bookTabs .tab');
+      const panels = document.querySelectorAll('.book-tab-panel');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const targetTab = tab.getAttribute('data-tab');
+
+          // Обновляем активную вкладку
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+
+          // Показываем соответствующую панель
+          panels.forEach(panel => {
+            panel.style.display = 'none';
+          });
+          document.getElementById(targetTab + 'Tab').style.display = 'block';
+        });
+      });
+
+      // Обработчики для копирования цитат
+      const copyBtns = document.querySelectorAll('.copy-quote-btn');
+      copyBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const text = btn.getAttribute('data-text');
+          try {
+            await navigator.clipboard.writeText(text);
+            toast('Цитата скопирована');
+          } catch {
+            // fallback
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+            toast('Цитата скопирована');
+          }
+        });
+      });
+    }, 0);
   }
 
   function spineWidth(title){
@@ -604,7 +752,7 @@
 
   function renderPlants(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Plants', 'Фото (заглушка) + семейство/род/вид. 1 фото на объект.'));
+    root.appendChild(sectionHead('Plants', 'Последние фото растений. Нажмите на карточку для просмотра галереи изменений.'));
 
     const grid = document.createElement('div');
     grid.className = 'grid';
@@ -612,18 +760,82 @@
     DATA.plants.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
+      card.style.cursor = 'pointer';
+
+      // Получаем последнее фото (самое новое по дате)
+      const photos = p.photos || [];
+      const latestPhoto = photos.length > 0 ? photos[photos.length - 1] : null;
+
       card.innerHTML = `
-        <div class="pack" style="height:140px; background: rgba(255,255,255,.03)">
-          <div class="packLabel">Фото растения</div>
+        <div class="plant-photo" style="height:140px; border-radius: var(--radius2); background: rgba(255,255,255,.03); position: relative; overflow: hidden; border: 1px solid var(--line);">
+          ${latestPhoto ?
+            `<img src="${latestPhoto.url}" alt="Фото растения" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+             <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; color: var(--muted);">Фото недоступно</div>` :
+            `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted);">Фото пока нет</div>`
+          }
+          ${photos.length > 1 ? `<div style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.7); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${photos.length} фото</div>` : ''}
         </div>
         <div class="title" style="margin-top:10px">${escapeHtml(p.commonName || `${p.genus || ''} ${p.species || ''}`.trim() || 'Plant')}</div>
         <p class="desc">${escapeHtml(p.family || '—')} / ${escapeHtml(p.genus || '—')} / ${escapeHtml(p.species || '—')}</p>
+        ${latestPhoto ? `<p class="desc" style="font-size: 12px; margin-top: 4px;">Последнее фото: ${new Date(latestPhoto.date).toLocaleDateString('ru-RU')}</p>` : ''}
       `;
+
+      card.addEventListener('click', () => {
+        openPlantGallery(p);
+      });
+
       grid.appendChild(card);
     });
 
     root.appendChild(grid);
     return root;
+  }
+
+  function openPlantGallery(plant) {
+    const photos = plant.photos || [];
+
+    if (photos.length === 0) {
+      toast('У этого растения пока нет фотографий');
+      return;
+    }
+
+    const galleryContent = `
+      <div class="item">
+        <div class="itemTitle">${escapeHtml(plant.commonName || `${plant.genus || ''} ${plant.species || ''}`.trim() || 'Plant')}</div>
+        <div class="itemMeta">${escapeHtml(plant.family || '—')} / ${escapeHtml(plant.genus || '—')} / ${escapeHtml(plant.species || '—')}</div>
+        <div class="itemMeta">Всего фотографий: ${photos.length}</div>
+      </div>
+
+      <div style="height:16px"></div>
+
+      <div class="plant-gallery" style="position: relative;">
+        <div class="gallery-container" style="display: flex; overflow-x: auto; gap: 12px; padding: 8px 0; scroll-behavior: smooth;">
+          ${photos.map((photo, index) => `
+            <div class="gallery-item" style="flex: 0 0 280px; position: relative;">
+              <div style="width: 280px; height: 200px; border-radius: var(--radius2); overflow: hidden; border: 1px solid var(--line); position: relative;">
+                <img src="${photo.url}" alt="Фото растения от ${new Date(photo.date).toLocaleDateString('ru-RU')}"
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; color: var(--muted); background: rgba(255,255,255,.03);">Фото недоступно</div>
+              </div>
+              <div style="margin-top: 8px; text-align: center;">
+                <div style="font-size: 13px; color: var(--fg);">${new Date(photo.date).toLocaleDateString('ru-RU')}</div>
+                ${photo.notes ? `<div style="font-size: 12px; color: var(--muted); margin-top: 2px;">${escapeHtml(photo.notes)}</div>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        ${photos.length > 1 ? `
+          <div style="display: flex; justify-content: center; gap: 8px; margin-top: 12px;">
+            <button class="btn" onclick="document.querySelector('.gallery-container').scrollBy({left: -300, behavior: 'smooth'})">← Назад</button>
+            <button class="btn" onclick="document.querySelector('.gallery-container').scrollBy({left: 300, behavior: 'smooth'})">Вперед →</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    openModal(`Галерея: ${plant.commonName || 'Растение'}`, galleryContent);
   }
 
   function renderMedia(){
