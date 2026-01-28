@@ -12,7 +12,7 @@
   --pad:16px;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+/* html,body{height:100%} */
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
@@ -130,7 +130,7 @@ button,input{font:inherit}
   background: rgba(255,255,255,.05);
 }
 
-.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top: 10px;}
 .chip{
   padding:7px 10px;
   border-radius:999px;
@@ -224,7 +224,7 @@ button,input{font:inherit}
   border-radius: 12px;
   border:1px solid rgba(232,238,252,.12);
   background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-  padding:10px 10px;
+  padding:30px 10px 10px 10px;
   display:flex;
   align-items:flex-end;
   justify-content:center;
