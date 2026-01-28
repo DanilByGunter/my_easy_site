@@ -246,22 +246,117 @@ button,input{font:inherit}
 
 /* Coffee */
 .tabs{display:flex; gap:8px; flex-wrap:wrap}
-.tab{padding:8px 10px; border-radius:999px; border:1px solid var(--line); background: rgba(255,255,255,.03); color:var(--muted); cursor:pointer}
-.tab.active{background: rgba(122,167,255,.14); border-color: rgba(122,167,255,.28); color:var(--fg)}
+.tab{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  color:var(--muted);
+  cursor:pointer;
+  transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.tab::before{
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(122,167,255,.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width .4s ease, height .4s ease;
+  pointer-events: none;
+}
+.tab:hover{
+  transform: translateY(-2px);
+  border-color: rgba(232,238,252,.25);
+  color: var(--fg);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+.tab:hover::before{
+  width: 100px;
+  height: 100px;
+}
+.tab.active{
+  background: rgba(122,167,255,.14);
+  border-color: rgba(122,167,255,.28);
+  color:var(--fg);
+  box-shadow: 0 4px 16px rgba(122,167,255,.25);
+  transform: translateY(-1px);
+}
 
 .brandGrid{display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px}
 @media (max-width: 900px){ .brandGrid{grid-template-columns: repeat(2, minmax(0, 1fr));} }
 @media (max-width: 560px){ .brandGrid{grid-template-columns: 1fr;} }
 
-.brandTile{padding:14px; border-radius: var(--radius); border:1px solid var(--line); cursor:pointer; overflow:hidden}
-.brandTile .bn{font-weight:750}
-.brandTile .avg{color:rgba(255,255,255,.82); font-size:13px; margin-top:6px}
+.brandTile{
+  padding:14px;
+  border-radius: var(--radius);
+  border:1px solid var(--line);
+  cursor:pointer;
+  overflow:hidden;
+  position: relative;
+  transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1), border-color .25s ease, box-shadow .25s ease;
+}
+.brandTile::before{
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,.08) 0%, transparent 70%);
+  transform: scale(0);
+  transition: transform .4s ease;
+  pointer-events: none;
+}
+.brandTile:hover{
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(232,238,252,.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.08);
+}
+.brandTile:hover::before{
+  transform: scale(1);
+}
+.brandTile .bn{font-weight:750; position: relative; z-index: 1;}
+.brandTile .avg{color:rgba(255,255,255,.82); font-size:13px; margin-top:6px; position: relative; z-index: 1;}
 
 .coffeeGrid{display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px}
 @media (max-width: 900px){ .coffeeGrid{grid-template-columns: repeat(2, minmax(0, 1fr));} }
 @media (max-width: 560px){ .coffeeGrid{grid-template-columns: 1fr;} }
 
-.coffeeCard{padding:14px; border-radius: var(--radius); border:1px solid var(--line); background: rgba(17,22,37,.55); cursor:pointer}
+.coffeeCard{
+  padding:14px;
+  border-radius: var(--radius);
+  border:1px solid var(--line);
+  background: rgba(17,22,37,.55);
+  cursor:pointer;
+  transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1), border-color .3s ease, box-shadow .3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.coffeeCard::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+  transition: left .5s ease;
+  pointer-events: none;
+}
+.coffeeCard:hover{
+  transform: translateY(-6px) rotateX(2deg);
+  border-color: rgba(232,238,252,.3);
+  box-shadow: 0 12px 40px rgba(0,0,0,.25), 0 0 0 1px rgba(255,255,255,.1);
+}
+.coffeeCard:hover::before{
+  left: 100%;
+}
 .pack{
   width:100%; height:120px;
   border-radius: 16px;
@@ -269,6 +364,10 @@ button,input{font:inherit}
   background: rgba(255,255,255,.04);
   position:relative;
   overflow:hidden;
+  transition: transform .3s ease;
+}
+.coffeeCard:hover .pack{
+  transform: scale(1.05) rotateY(5deg);
 }
 .pack::after{
   content:"";
@@ -276,8 +375,22 @@ button,input{font:inherit}
   background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.22), transparent 55%),
               radial-gradient(circle at 80% 30%, rgba(255,255,255,.14), transparent 55%);
   transform: rotate(10deg);
+  transition: transform .4s ease;
 }
-.packLabel{position:absolute; left:12px; bottom:10px; font-weight:700}
+.coffeeCard:hover .pack::after{
+  transform: rotate(15deg) scale(1.1);
+}
+.packLabel{
+  position:absolute;
+  left:12px;
+  bottom:10px;
+  font-weight:700;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+  transition: transform .3s ease;
+}
+.coffeeCard:hover .packLabel{
+  transform: translateY(-2px);
+}
 
 /* Figures */
 .hangerWrap{display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:12px}
@@ -451,6 +564,65 @@ button,input{font:inherit}
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
+  }
+}
+
+/* Coffee animations */
+.coffee-grid-animate .brandTile,
+.coffee-grid-animate .coffeeCard {
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  animation: coffeeItemFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes coffeeItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Coffee floating particles effect */
+.coffee-grid-animate {
+  position: relative;
+}
+
+.coffee-grid-animate::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background:
+    radial-gradient(2px 2px at 20% 30%, rgba(139, 69, 19, 0.3), transparent),
+    radial-gradient(2px 2px at 40% 70%, rgba(160, 82, 45, 0.2), transparent),
+    radial-gradient(1px 1px at 90% 40%, rgba(139, 69, 19, 0.4), transparent),
+    radial-gradient(1px 1px at 60% 10%, rgba(160, 82, 45, 0.3), transparent);
+  background-size: 100px 100px, 80px 80px, 120px 120px, 90px 90px;
+  animation: coffeeParticles 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes coffeeParticles {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
   }
 }
 

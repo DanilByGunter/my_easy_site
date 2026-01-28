@@ -287,7 +287,9 @@
     }
 
     root.appendChild(resultsContainer);
-    updateVinylResults();
+
+    // Вызываем updateVinylResults после добавления в DOM
+    setTimeout(() => updateVinylResults(), 0);
 
     return root;
   }
@@ -303,7 +305,7 @@
 
     const searchInput = document.createElement('input');
     searchInput.className = 'input';
-    searchInput.placeholder = 'Поиск по названию книги...';
+    searchInput.placeholder = 'Поиск по названию или автору...';
     searchInput.value = state.books.q;
     searchInput.addEventListener('input', (e) => {
       state.books.q = e.target.value;
@@ -390,7 +392,8 @@
       }
     }
 
-    updateBooksResults();
+    // Вызываем updateBooksResults после добавления в DOM
+    setTimeout(() => updateBooksResults(), 0);
     return root;
   }
 
@@ -515,10 +518,10 @@
 
     if(state.coffee.mode === 'brands'){
       const grid = document.createElement('div');
-      grid.className = 'brandGrid';
+      grid.className = 'brandGrid coffee-grid-animate';
       grid.style.marginTop = '12px';
 
-      DATA.coffeeBrands.forEach(br => {
+      DATA.coffeeBrands.forEach((br, index) => {
         const coffees = DATA.coffee.filter(c => c.brandId === br.id);
         const avgs = coffees.map(c => avgRating(c.reviews)).filter(x => x != null);
         const avg = avgs.length ? (avgs.reduce((a,x)=>a+x,0)/avgs.length) : null;
@@ -527,6 +530,7 @@
         tile.className = 'brandTile';
         tile.style.background = avg != null ? ratingColor(avg) : 'rgba(17,22,37,.55)';
         tile.style.borderColor = avg != null ? ratingBorder(avg) : 'rgba(232,238,252,.12)';
+        tile.style.animationDelay = `${index * 0.1}s`;
         tile.innerHTML = `
           <div class="bn">${escapeHtml(br.name)}</div>
           <div class="avg">Средняя оценка: ${avg != null ? avg.toFixed(2) : '—'}</div>
@@ -569,13 +573,14 @@
 
     } else {
       const grid = document.createElement('div');
-      grid.className = 'coffeeGrid';
+      grid.className = 'coffeeGrid coffee-grid-animate';
       grid.style.marginTop = '12px';
 
-      DATA.coffee.forEach(c => {
+      DATA.coffee.forEach((c, index) => {
         const br = DATA.coffeeBrands.find(b => b.id === c.brandId);
         const card = document.createElement('div');
         card.className = 'coffeeCard';
+        card.style.animationDelay = `${index * 0.1}s`;
         card.innerHTML = coffeeCardHtml(c, br);
         card.addEventListener('click', () => openCoffeeDetails(c));
         grid.appendChild(card);
