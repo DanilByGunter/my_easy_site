@@ -492,7 +492,7 @@
   function spineWidth(title){
     const len = (title || '').length;
     // мягкая нелинейность: короткие книги не слишком тонкие, длинные не слишком широкие
-    const w = (len > 4) ? 28 + Math.sqrt(len) * 8 : 66;
+    const w = (len > 4) ? 28 + Math.sqrt(len) * 10 : 66;
     return Math.round(clamp(w, 44, 140));
   }
 
