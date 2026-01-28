@@ -209,7 +209,6 @@
 
     const chips = document.createElement('div');
     chips.className = 'chips';
-    chips.style.marginTop = '16px';
 
     DATA.vinylGenres.forEach(g => {
       const ch = document.createElement('button');
@@ -490,7 +489,7 @@
   function spineWidth(title){
     const len = (title || '').length;
     // мягкая нелинейность: короткие книги не слишком тонкие, длинные не слишком широкие
-    const w = 28 + Math.sqrt(len) * 12;
+    const w = (len > 4) ? 28 + Math.sqrt(len) * 8 : 66;
     return Math.round(clamp(w, 44, 140));
   }
 
