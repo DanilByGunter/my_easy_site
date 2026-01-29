@@ -153,14 +153,14 @@
     grid.className = 'grid';
 
     const cards = [
-      {to:'#/vinyl', kicker:'Vinyl', title:'Пластинки', desc:'Поиск и фильтр по жанрам.'},
-      {to:'#/books', kicker:'Books', title:'Книги', desc:'Полки по жанрам, корешки с шириной от названия.'},
-      {to:'#/coffee', kicker:'Coffee', title:'Кофе', desc:'2 режима: бренды и кофе, отзывы по способам (espresso/cappuccino/filter).'},
-      {to:'#/figures', kicker:'Figures', title:'Фигурки', desc:'Подвешенные карточки с легким покачиванием.'},
-      {to:'#/projects', kicker:'GitHub', title:'Проекты', desc:'Карточки проектов (в прототипе мок-данные).'},
-      {to:'#/research', kicker:'Research', title:'Исследования', desc:'Публикации + инфографика.'},
-      {to:'#/plants', kicker:'Plants', title:'Растения', desc:'Фото (заглушка) + семейство/род/вид.'},
-      {to:'#/media', kicker:'Media', title:'Контакты', desc:'Открыть / копировать + ссылка на внешний ресурс.'},
+      {to:'#/vinyl', kicker:'Vinyl', title:'Пластинки', desc:'Коллекция моих пластинок.'},
+      {to:'#/books', kicker:'Books', title:'Книги', desc:'Прочитанная литература с любимыми цитатами и отзывом на книгу.'},
+      {to:'#/coffee', kicker:'Coffee', title:'Кофе', desc:'Обзор на кофе и кофейные бренды.'},
+      {to:'#/figures', kicker:'Figures', title:'Фигурки', desc:'Коллекция моих фигурок.'},
+      {to:'#/projects', kicker:'GitHub', title:'Проекты', desc:'Open-source проекты.'},
+      {to:'#/research', kicker:'Research', title:'Исследования', desc:'Публикации статей, исследования и инфографика.'},
+      {to:'#/plants', kicker:'Plants', title:'Растения', desc:'Коллекция растений и галерея их роста.'},
+      {to:'#/media', kicker:'Wishlist & media', title:'Вишлист и медиа', desc:'Ссылки на вишлист и прочие контакты.'},
     ];
 
     cards.forEach(c => {
@@ -180,12 +180,12 @@
     const note = document.createElement('div');
     note.className = 'item';
     note.style.marginTop = '14px';
-    note.innerHTML = `
-      <div class="itemTitle">Что здесь важно</div>
-      <div class="itemMeta">
-        На сайте отображается только то, что уже есть. Прототип без API — позже подключим Python backend и Telegram-бота.
-      </div>
-    `;
+    // note.innerHTML = `
+    //   <div class="itemTitle">Что здесь важно</div>
+    //   <div class="itemMeta">
+    //     На сайте отображается только то, что уже есть. Прототип без API — позже подключим Python backend и Telegram-бота.
+    //   </div>
+    // `;
     root.appendChild(note);
 
     return root;
@@ -193,7 +193,7 @@
 
   function renderVinyl(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Vinyl', 'Поиск по исполнителю/названию + фильтр по жанрам (чипсы).'));
+    root.appendChild(sectionHead('Винил', 'Моя коллекция винила. Поддерживает поиск и фильтр по жанрам.'));
 
     const controls = document.createElement('div');
     controls.className = 'row';
@@ -296,7 +296,7 @@
 
   function renderBooks(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Books', 'Полки по жанрам. Ширина корешка зависит от длины названия.'));
+    root.appendChild(sectionHead('Книги', 'Прочитанные произведения с разбивкой по жанрам. Поддерживает поиск по автору и названию'));
 
     // Добавляем поиск
     const searchContainer = document.createElement('div');
@@ -498,7 +498,7 @@
 
   function renderCoffee(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Coffee', '2 режима: бренды и кофе. У кофе несколько отзывов по способам.'));
+    root.appendChild(sectionHead('Кофе', 'Обзор на кофе с оценкой каждого лота и итоговой оценкой бренда.'));
 
     const tabs = document.createElement('div');
     tabs.className = 'tabs';
@@ -649,7 +649,7 @@
 
   function renderFigures(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Figures', 'Фигурки “висят на ниточке” + лёгкая анимация покачивания.'));
+    root.appendChild(sectionHead('Фигурки и конструктор', 'Моя коллекция.'));
 
     const grid = document.createElement('div');
     grid.className = 'hangerWrap';
@@ -672,7 +672,7 @@
 
   function renderProjects(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('GitHub Projects', 'В прототипе — мок-данные. Позже можно подтягивать через GitHub API или ботом.'));
+    root.appendChild(sectionHead('GitHub проекты', 'Интересные проекты, которые можно посмотреть или развернуть локально.'));
 
     const grid = document.createElement('div');
     grid.className = 'grid';
@@ -698,7 +698,7 @@
 
   function renderResearch(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Research & Infographics', 'Публикации + примеры инфографики (заглушки).'));
+    root.appendChild(sectionHead('Исследования и инфографика', 'Опубликованные статьи и инфографика, неопубликованные личные исследования.'));
 
     const pub = document.createElement('div');
     pub.className = 'item';
@@ -756,7 +756,7 @@
 
   function renderPlants(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Plants', 'Последние фото растений. Нажмите на карточку для просмотра галереи изменений.'));
+    root.appendChild(sectionHead('Растения', 'Коллекция растений. При нажатии на карточку доступен просмотр галереи изменений.'));
 
     const grid = document.createElement('div');
     grid.className = 'grid';
@@ -844,7 +844,7 @@
 
   function renderMedia(){
     const root = document.createElement('div');
-    root.appendChild(sectionHead('Media / Contacts', 'Открыть / копировать. Wishlist — по ссылке на внешний ресурс.'));
+    root.appendChild(sectionHead('Вишлист и медиа', 'Приятно познакомться, начинаем с вишлиста.'));
 
     const ext = document.createElement('div');
     ext.className = 'item';
