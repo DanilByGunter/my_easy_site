@@ -7,7 +7,7 @@ from app.services.all_data import AllDataService
 router = APIRouter()
 
 
-@router.get("/api/v1/all")
+@router.get("/v1/all")
 async def get_all_data(db: AsyncSession = Depends(get_db)):
     """Get all site data in frontend-compatible format"""
     service = AllDataService(db)
