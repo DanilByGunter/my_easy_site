@@ -35,6 +35,9 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+    # Убираем порты - бэкэнд доступен только через nginx
+    expose:
+      - "8000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
