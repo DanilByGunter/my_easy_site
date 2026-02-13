@@ -63,7 +63,9 @@ services:
       retries: 3
 
   telegram-bot:
-    build: ./telegram
+    build:
+      context: .
+      dockerfile: telegram/Dockerfile
     environment:
       BOT_TOKEN: ${BOT_TOKEN}
       ADMIN_TELEGRAM_ID: ${ADMIN_TELEGRAM_ID}

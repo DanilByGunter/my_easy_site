@@ -9,7 +9,7 @@ from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Добавляем путь к backend для импорта моделей и репозиториев
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../backend'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../backend'))
 
 # Импорты после добавления пути
 from app.models.coffee import Coffee, CoffeeBrand, CoffeeReview  # noqa: E402

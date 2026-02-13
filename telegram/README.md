@@ -72,7 +72,14 @@ docker-compose up -d telegram-bot
 ```bash
 cd telegram/
 pip install -r requirements.txt
-python bot.py
+python run_local.py  # Использует локальный скрипт с правильными путями
+```
+
+**Альтернативно:**
+```bash
+# Из корневой директории проекта
+cd my_easy_site/
+PYTHONPATH=backend python telegram/bot.py
 ```
 
 ## Использование
@@ -185,17 +192,23 @@ LOG_LEVEL=DEBUG python bot.py
 
 ### Частые проблемы
 
-1. **Бот не отвечает**
+1. **ModuleNotFoundError: No module named 'app'**
+   - Убедитесь, что используете правильный контекст сборки Docker
+   - Для локальной разработки используйте `python run_local.py`
+   - Или установите PYTHONPATH: `PYTHONPATH=backend python telegram/bot.py`
+
+2. **Бот не отвечает**
    - Проверьте правильность `BOT_TOKEN`
    - Убедитесь, что бот запущен
 
-2. **Доступ запрещен**
+3. **Доступ запрещен**
    - Проверьте `ADMIN_TELEGRAM_ID`
    - Узнайте свой ID через [@userinfobot](https://t.me/userinfobot)
 
-3. **Ошибки базы данных**
+4. **Ошибки базы данных**
    - Проверьте подключение к PostgreSQL
    - Убедитесь, что миграции выполнены
+   - Проверьте переменные POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
 
 ### Логи
 
