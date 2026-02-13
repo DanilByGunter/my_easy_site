@@ -1,6 +1,7 @@
 """
 Подключение к базе данных для Telegram-бота
 """
+from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from config import config
 
@@ -33,6 +34,15 @@ async def get_db() -> AsyncSession:
             await session.close()
 
 
-async def get_db_session() -> AsyncSession:
-    """Получить сессию базы данных для использования в сервисах"""
-    return AsyncSessionLocal()
+@asynccontextmanager
+async def get_db_session():
+    """Получить сессию базы данных как асинхронный контекстный менеджер"""
+    session = AsyncSessionLocal()
+    try:
+        yield session
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
+    finally:
+        await session.close()
