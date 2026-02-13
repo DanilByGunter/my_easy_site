@@ -10,12 +10,34 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
     """Главное меню бота"""
     builder = ReplyKeyboardBuilder()
     builder.add(
-        KeyboardButton(text="☕ Управление кофе"),
+        KeyboardButton(text="🎵 Винил"),
+        KeyboardButton(text="📚 Книги"),
+        KeyboardButton(text="☕ Кофе"),
+        KeyboardButton(text="🎭 Фигурки"),
+        KeyboardButton(text="🌱 Растения"),
+        KeyboardButton(text="📄 Исследования"),
+        KeyboardButton(text="🚀 Проекты"),
         KeyboardButton(text="📊 Статистика"),
         KeyboardButton(text="❓ Помощь")
     )
-    builder.adjust(2, 1)
+    builder.adjust(3, 2, 2, 2)
     return builder.as_markup(resize_keyboard=True)
+
+
+def collections_menu_keyboard() -> InlineKeyboardMarkup:
+    """Меню выбора коллекций"""
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        InlineKeyboardButton(text="🎵 Винил", callback_data="vinyl_menu"),
+        InlineKeyboardButton(text="📚 Книги", callback_data="books_menu"),
+        InlineKeyboardButton(text="☕ Кофе", callback_data="coffee_menu"),
+        InlineKeyboardButton(text="🎭 Фигурки", callback_data="figures_menu"),
+        InlineKeyboardButton(text="🌱 Растения", callback_data="plants_menu"),
+        InlineKeyboardButton(text="📄 Исследования", callback_data="research_menu"),
+        InlineKeyboardButton(text="🚀 Проекты", callback_data="projects_menu")
+    )
+    builder.adjust(2, 2, 2, 1)
+    return builder.as_markup()
 
 
 def coffee_menu_keyboard() -> InlineKeyboardMarkup:

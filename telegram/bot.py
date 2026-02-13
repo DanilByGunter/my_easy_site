@@ -10,7 +10,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import config
-from handlers import start, coffee
+from handlers import start, coffee, vinyl
 from middlewares.auth import AdminMiddleware
 from middlewares.error_handler import ErrorHandlerMiddleware, error_handler
 
@@ -69,6 +69,7 @@ async def main():
 
     # Регистрируем роутеры
     dp.include_router(start.router)
+    dp.include_router(vinyl.router)
     dp.include_router(coffee.router)
 
     logger.info("📝 Middleware и роутеры зарегистрированы")
