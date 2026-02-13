@@ -84,9 +84,10 @@ async def main():
     # Проверяем подключение к базе данных
     try:
         from database import get_db_session
+        from sqlalchemy import text
         async with get_db_session() as db:
             # Простая проверка подключения
-            await db.execute("SELECT 1")
+            await db.execute(text("SELECT 1"))
         logger.info("✅ Подключение к базе данных успешно")
     except Exception as e:
         logger.error(f"❌ Ошибка подключения к базе данных: {e}")
