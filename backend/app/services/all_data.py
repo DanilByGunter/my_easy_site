@@ -101,6 +101,7 @@ class AllDataService:
             "title": record.title,
             "year": record.year,
             "genres": record.genres or [],
+            "photo_url": record.photo_url,
         }
 
     def _map_book(self, book) -> dict:

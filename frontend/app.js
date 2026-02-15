@@ -271,8 +271,18 @@
         items.forEach(v => {
           const card = document.createElement('div');
           card.className = 'vinylCard';
+
+          // Создаем содержимое карточки с фотографией или диском
+          const discContent = v.photo_url ?
+            `<div class="vinyl-photo">
+               <img src="${escapeHtml(v.photo_url)}" alt="Обложка ${escapeHtml(v.artist)} - ${escapeHtml(v.title)}"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+               <div class="disc fallback-disc" style="display: none;"><div class="label"></div></div>
+             </div>` :
+            `<div class="disc"><div class="label"></div></div>`;
+
           card.innerHTML = `
-            <div class="disc"><div class="label"></div></div>
+            ${discContent}
             <div class="vmeta">
               <div class="a">${escapeHtml(v.artist)}</div>
               <div class="t">${escapeHtml(v.title)}${v.year ? ` • ${v.year}` : ''}</div>
