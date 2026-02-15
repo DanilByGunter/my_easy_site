@@ -31,12 +31,10 @@ class S3Service:
         else:
             self.configured = True
 
-    def _create_signature(self, method: str, url: str, headers: dict, payload: bytes) -> str:
+    def _create_signature(self, method: str, url: str, headers: dict, payload: bytes, amz_date: str) -> str:
         """Создать AWS Signature Version 4 для Яндекс.Облако"""
-        # Получаем текущее время
-        now = datetime.datetime.utcnow()
-        amz_date = now.strftime('%Y%m%dT%H%M%SZ')
-        date_stamp = now.strftime('%Y%m%d')
+        # Используем переданный amz_date
+        date_stamp = amz_date[:8]  # Первые 8 символов YYYYMMDD
 
         # Создаем canonical request
         canonical_uri = url.replace(self.endpoint_url, '')
@@ -67,7 +65,7 @@ class S3Service:
         # Создаем authorization header
         authorization_header = f"{algorithm} Credential={self.access_key}/{credential_scope}, SignedHeaders={signed_headers}, Signature={signature}"
 
-        return authorization_header, amz_date
+        return authorization_header
 
     async def upload_photo(self, bot: Bot, photo: PhotoSize, folder: str = "vinyl") -> Optional[str]:
         """
@@ -104,17 +102,20 @@ class S3Service:
             # Формируем URL для загрузки
             upload_url = f"{self.endpoint_url}/{self.bucket_name}/{s3_key}"
 
-            # Подготавливаем заголовки
+            # Подготавливаем заголовки с x-amz-date заранее
+            now = datetime.datetime.utcnow()
+            amz_date = now.strftime('%Y%m%dT%H%M%SZ')
+
             headers = {
                 'Content-Type': f'image/{file_extension}',
                 'Content-Length': str(len(file_data)),
-                'x-amz-acl': 'public-read'
+                'x-amz-acl': 'public-read',
+                'x-amz-date': amz_date
             }
 
-            # Создаем подпись
-            authorization, amz_date = self._create_signature('PUT', upload_url, headers, file_data)
+            # Создаем подпись с уже включенным x-amz-date
+            authorization = self._create_signature('PUT', upload_url, headers, file_data, amz_date)
             headers['Authorization'] = authorization
-            headers['x-amz-date'] = amz_date
 
             # Загружаем файл через aiohttp
             async with aiohttp.ClientSession() as session:
@@ -146,13 +147,17 @@ class S3Service:
         try:
             # Проверяем, что URL содержит наш bucket
             if self.bucket_name in photo_url:
-                # Подготавливаем заголовки для DELETE запроса
-                headers = {}
+                # Подготавливаем заголовки для DELETE запроса с x-amz-date заранее
+                now = datetime.datetime.utcnow()
+                amz_date = now.strftime('%Y%m%dT%H%M%SZ')
+
+                headers = {
+                    'x-amz-date': amz_date
+                }
 
                 # Создаем подпись для DELETE запроса
-                authorization, amz_date = self._create_signature('DELETE', photo_url, headers, b'')
+                authorization = self._create_signature('DELETE', photo_url, headers, b'', amz_date)
                 headers['Authorization'] = authorization
-                headers['x-amz-date'] = amz_date
 
                 # Удаляем файл через aiohttp
                 async with aiohttp.ClientSession() as session:
