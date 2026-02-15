@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
-from keyboards.coffee_keyboards import main_menu_keyboard, coffee_menu_keyboard
+from keyboards.coffee_keyboards import main_menu_keyboard, coffee_menu_keyboard, collections_menu_keyboard
 from keyboards.vinyl_keyboards import vinyl_menu_keyboard
 from keyboards.books_keyboards import books_menu_keyboard
 from keyboards.figures_keyboards import figures_menu_keyboard
@@ -206,7 +206,7 @@ async def back_to_main_menu(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
         "🏠 *Главное меню*\n\n"
         "Выберите раздел для работы:",
-        reply_markup=main_menu_keyboard(),
+        reply_markup=collections_menu_keyboard(),
         parse_mode="Markdown"
     )
     await callback.answer()

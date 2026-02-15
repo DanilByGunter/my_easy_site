@@ -1,7 +1,6 @@
 """
 Клавиатуры для управления винилом
 """
-from typing import List
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -14,49 +13,30 @@ def vinyl_menu_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="➕ Добавить винил", callback_data="vinyl_add"),
         InlineKeyboardButton(text="✏️ Редактировать", callback_data="vinyl_edit"),
         InlineKeyboardButton(text="🗑️ Удалить", callback_data="vinyl_delete"),
-        InlineKeyboardButton(text="🔍 Поиск", callback_data="vinyl_search"),
-        InlineKeyboardButton(text="🎭 По жанрам", callback_data="vinyl_by_genre"),
         InlineKeyboardButton(text="🔙 Назад", callback_data="main_menu")
     )
-    builder.adjust(1, 1, 2, 2, 1)
+    builder.adjust(1, 1, 2, 1)
     return builder.as_markup()
 
 
-def vinyl_selection_keyboard(vinyl_records: List[dict]) -> InlineKeyboardMarkup:
+def vinyl_selection_keyboard(vinyl_records) -> InlineKeyboardMarkup:
     """Клавиатура выбора винила"""
     builder = InlineKeyboardBuilder()
 
     for vinyl in vinyl_records:
-        display_text = f"{vinyl['artist']} - {vinyl['title']}"
+        display_text = f"{vinyl.artist} - {vinyl.title}"
         if len(display_text) > 40:
             display_text = display_text[:37] + "..."
 
         builder.add(
             InlineKeyboardButton(
                 text=display_text,
-                callback_data=f"select_vinyl_{vinyl['id']}"
+                callback_data=f"select_vinyl_{vinyl.id}"
             )
         )
 
     builder.add(InlineKeyboardButton(text="🔙 Назад", callback_data="vinyl_menu"))
     builder.adjust(1)
-    return builder.as_markup()
-
-
-def genres_selection_keyboard(genres: List[str]) -> InlineKeyboardMarkup:
-    """Клавиатура выбора жанров"""
-    builder = InlineKeyboardBuilder()
-
-    for genre in genres:
-        builder.add(
-            InlineKeyboardButton(
-                text=genre,
-                callback_data=f"select_genre_{genre}"
-            )
-        )
-
-    builder.add(InlineKeyboardButton(text="🔙 Назад", callback_data="vinyl_menu"))
-    builder.adjust(2)
     return builder.as_markup()
 
 
@@ -68,9 +48,10 @@ def vinyl_edit_fields_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="🎵 Название", callback_data="edit_vinyl_title"),
         InlineKeyboardButton(text="📅 Год", callback_data="edit_vinyl_year"),
         InlineKeyboardButton(text="🎭 Жанры", callback_data="edit_vinyl_genres"),
-        InlineKeyboardButton(text="🔙 Назад", callback_data="vinyl_menu")
+        InlineKeyboardButton(text="📸 Фото альбома", callback_data="edit_vinyl_photo"),
+        InlineKeyboardButton(text="� Назад", callback_data="vinyl_menu")
     )
-    builder.adjust(2, 2, 1)
+    builder.adjust(2, 2, 1, 1)
     return builder.as_markup()
 
 
@@ -161,4 +142,15 @@ def back_to_vinyl_keyboard() -> InlineKeyboardMarkup:
     """Клавиатура возврата к меню винила"""
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text="🔙 К винилу", callback_data="vinyl_menu"))
+    return builder.as_markup()
+
+
+def photo_upload_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура для загрузки фото"""
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        InlineKeyboardButton(text="⏭️ Пропустить", callback_data="skip_photo"),
+        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_action")
+    )
+    builder.adjust(1)
     return builder.as_markup()

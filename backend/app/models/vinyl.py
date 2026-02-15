@@ -10,3 +10,4 @@ class VinylRecord(Base, UUIDMixin):
     title = Column(String, nullable=False)
     year = Column(Integer, nullable=True)
     genres = Column(ARRAY(String), nullable=False, default=list)
+    photo_url = Column(String, nullable=True)  # URL фото в S3

@@ -34,14 +34,16 @@ class VinylService:
         artist: str,
         title: str,
         year: Optional[int] = None,
-        genres: Optional[List[str]] = None
+        genres: Optional[List[str]] = None,
+        photo_url: Optional[str] = None
     ) -> VinylRecord:
         """Создать новую виниловую запись"""
         return await self.vinyl_repo.create(
             artist=artist,
             title=title,
             year=year,
-            genres=genres or []
+            genres=genres or [],
+            photo_url=photo_url
         )
 
     async def get_vinyl_by_id(self, vinyl_id: str) -> Optional[VinylRecord]:
@@ -54,7 +56,8 @@ class VinylService:
         artist: Optional[str] = None,
         title: Optional[str] = None,
         year: Optional[int] = None,
-        genres: Optional[List[str]] = None
+        genres: Optional[List[str]] = None,
+        photo_url: Optional[str] = None
     ) -> Optional[VinylRecord]:
         """Обновить виниловую запись"""
         update_data = {}
@@ -66,6 +69,8 @@ class VinylService:
             update_data['year'] = year
         if genres is not None:
             update_data['genres'] = genres
+        if photo_url is not None:
+            update_data['photo_url'] = photo_url
 
         if not update_data:
             return await self.get_vinyl_by_id(vinyl_id)
@@ -75,16 +80,6 @@ class VinylService:
     async def delete_vinyl(self, vinyl_id: str) -> bool:
         """Удалить виниловую запись"""
         return await self.vinyl_repo.delete(vinyl_id)
-
-    async def search_vinyl(self, query: str) -> List[VinylRecord]:
-        """Поиск винила по исполнителю или названию"""
-        all_vinyl = await self.get_all_vinyl()
-        query_lower = query.lower()
-
-        return [
-            vinyl for vinyl in all_vinyl
-            if query_lower in vinyl.artist.lower() or query_lower in vinyl.title.lower()
-        ]
 
     # === HELPER METHODS ===
 
@@ -99,26 +94,10 @@ class VinylService:
             genres_str = ", ".join(vinyl.genres)
             info += f"🎭 Жанры: {genres_str}\n"
 
+        if hasattr(vinyl, 'photo_url') and vinyl.photo_url:
+            info += "📸 Фото: есть\n"
+
         return info
-
-    async def get_all_genres(self) -> List[str]:
-        """Получить все уникальные жанры"""
-        all_vinyl = await self.get_all_vinyl()
-        all_genres = set()
-
-        for vinyl in all_vinyl:
-            if vinyl.genres:
-                all_genres.update(vinyl.genres)
-
-        return sorted(list(all_genres))
-
-    async def get_vinyl_by_genre(self, genre: str) -> List[VinylRecord]:
-        """Получить винил по жанру"""
-        all_vinyl = await self.get_all_vinyl()
-        return [
-            vinyl for vinyl in all_vinyl
-            if vinyl.genres and genre in vinyl.genres
-        ]
 
     async def commit(self):
         """Зафиксировать изменения в БД"""
