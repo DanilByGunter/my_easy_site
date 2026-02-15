@@ -21,7 +21,7 @@ async def setup_database():
         print('❌ Missing database environment variables!')
         return False
 
-    # First, try to connect to the target database
+    # Connect to the target database (it should already exist via POSTGRES_DB env var)
     target_url = f'postgresql+asyncpg://{postgres_user}:{postgres_password}@db:5432/{postgres_db}'
 
     try:
@@ -33,37 +33,8 @@ async def setup_database():
         print(f'✅ Database {postgres_db} is ready!')
         return True
     except Exception as e:
-        print(f'⚠️  Target database not ready: {e}')
-
-        # Try to connect to postgres database to create our database
-        try:
-            print('🔧 Trying to create database...')
-            postgres_url = f'postgresql+asyncpg://{postgres_user}:{postgres_password}@db:5432/postgres'
-            engine = create_async_engine(postgres_url)
-
-            # Check if database exists and create if not
-            async with engine.begin() as conn:
-                result = await conn.execute(text(f\"SELECT 1 FROM pg_database WHERE datname = '{postgres_db}'\"))
-                if not result.fetchone():
-                    print(f'📝 Creating database: {postgres_db}')
-                    await conn.execute(text(f'CREATE DATABASE {postgres_db}'))
-                    print(f'✅ Database {postgres_db} created!')
-                else:
-                    print(f'ℹ️  Database {postgres_db} already exists')
-
-            await engine.dispose()
-
-            # Now try to connect to our database again
-            engine = create_async_engine(target_url)
-            async with engine.begin() as conn:
-                await conn.execute(text('SELECT 1'))
-            await engine.dispose()
-            print(f'✅ Successfully connected to {postgres_db}!')
-            return True
-
-        except Exception as e2:
-            print(f'❌ Failed to setup database: {e2}')
-            return False
+        print(f'❌ Failed to connect to database: {e}')
+        return False
 
 if not asyncio.run(setup_database()):
     sys.exit(1)

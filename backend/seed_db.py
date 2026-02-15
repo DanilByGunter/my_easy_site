@@ -38,6 +38,12 @@ async def create_tables():
 
 async def seed_data():
     async with AsyncSessionLocal() as session:
+        # Check if data already exists
+        existing_config = await session.get(SiteConfig, 1)
+        if existing_config:
+            print("Database already seeded, skipping...")
+            return
+
         # Site config
         site_config = SiteConfig(
             external_wish_url="https://example.com/my-wishlist",
