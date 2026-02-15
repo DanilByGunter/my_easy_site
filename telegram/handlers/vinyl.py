@@ -331,6 +331,9 @@ async def skip_field(callback: CallbackQuery, state: FSMContext):
             reply_markup=popular_genres_keyboard(),
             parse_mode="Markdown"
         )
+    elif current_state == VinylStates.waiting_for_edit_year.state:
+        # При редактировании года - пропускаем (оставляем текущий год)
+        await update_vinyl_field(callback.message, state)
 
     await callback.answer("Поле пропущено")
 
