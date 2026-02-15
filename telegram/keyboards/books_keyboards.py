@@ -1,7 +1,6 @@
 """
 Клавиатуры для управления книгами
 """
-from typing import List
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -14,24 +13,20 @@ def books_menu_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="➕ Добавить книгу", callback_data="books_add"),
         InlineKeyboardButton(text="✏️ Редактировать", callback_data="books_edit"),
         InlineKeyboardButton(text="🗑️ Удалить", callback_data="books_delete"),
-        InlineKeyboardButton(text="🔍 Поиск", callback_data="books_search"),
-        InlineKeyboardButton(text="🎭 По жанрам", callback_data="books_by_genre"),
-        InlineKeyboardButton(text="🌐 По языкам", callback_data="books_by_language"),
-        InlineKeyboardButton(text="💬 Цитаты", callback_data="books_quotes"),
         InlineKeyboardButton(text="🔙 Назад", callback_data="main_menu")
     )
-    builder.adjust(1, 1, 2, 2, 2, 1, 1)
+    builder.adjust(1, 1, 2, 1)
     return builder.as_markup()
 
 
-def books_selection_keyboard(books: List[dict]) -> InlineKeyboardMarkup:
+def books_selection_keyboard(books) -> InlineKeyboardMarkup:
     """Клавиатура выбора книги"""
     builder = InlineKeyboardBuilder()
 
     for book in books:
-        display_text = book['title']
-        if book.get('author'):
-            display_text += f" - {book['author']}"
+        display_text = book.title
+        if book.author:
+            display_text += f" - {book.author}"
 
         if len(display_text) > 40:
             display_text = display_text[:37] + "..."
@@ -39,7 +34,7 @@ def books_selection_keyboard(books: List[dict]) -> InlineKeyboardMarkup:
         builder.add(
             InlineKeyboardButton(
                 text=display_text,
-                callback_data=f"select_book_{book['id']}"
+                callback_data=f"select_book_{book.id}"
             )
         )
 
@@ -152,44 +147,9 @@ def quotes_menu_keyboard() -> InlineKeyboardMarkup:
     builder.add(
         InlineKeyboardButton(text="📋 Все цитаты", callback_data="quotes_list"),
         InlineKeyboardButton(text="➕ Добавить цитату", callback_data="quotes_add"),
-        InlineKeyboardButton(text="🔍 Поиск цитат", callback_data="quotes_search"),
         InlineKeyboardButton(text="🔙 К книгам", callback_data="books_menu")
     )
-    builder.adjust(1, 1, 1, 1)
-    return builder.as_markup()
-
-
-def genres_filter_keyboard(genres: List[str]) -> InlineKeyboardMarkup:
-    """Клавиатура фильтра по жанрам"""
-    builder = InlineKeyboardBuilder()
-
-    for genre in genres:
-        builder.add(
-            InlineKeyboardButton(
-                text=genre,
-                callback_data=f"filter_genre_{genre}"
-            )
-        )
-
-    builder.add(InlineKeyboardButton(text="🔙 Назад", callback_data="books_menu"))
-    builder.adjust(2)
-    return builder.as_markup()
-
-
-def languages_filter_keyboard(languages: List[str]) -> InlineKeyboardMarkup:
-    """Клавиатура фильтра по языкам"""
-    builder = InlineKeyboardBuilder()
-
-    for language in languages:
-        builder.add(
-            InlineKeyboardButton(
-                text=language,
-                callback_data=f"filter_language_{language}"
-            )
-        )
-
-    builder.add(InlineKeyboardButton(text="🔙 Назад", callback_data="books_menu"))
-    builder.adjust(2)
+    builder.adjust(1, 1, 1)
     return builder.as_markup()
 
 

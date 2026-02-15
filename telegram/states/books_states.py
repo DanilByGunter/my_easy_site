@@ -27,12 +27,8 @@ class BooksStates(StatesGroup):
     waiting_for_edit_opinion = State()
 
     # Удаление книги
+    waiting_for_delete_selection = State()
     waiting_for_delete_confirmation = State()
-
-    # Поиск книг
-    waiting_for_search_query = State()
-    waiting_for_genre_filter = State()
-    waiting_for_language_filter = State()
 
     # Управление цитатами
     waiting_for_quote_book_selection = State()

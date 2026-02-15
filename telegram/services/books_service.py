@@ -96,33 +96,6 @@ class BooksService:
         """Удалить книгу"""
         return await self.book_repo.delete(book_id)
 
-    async def search_books(self, query: str) -> List[Book]:
-        """Поиск книг по названию или автору"""
-        all_books = await self.get_all_books()
-        query_lower = query.lower()
-
-        return [
-            book for book in all_books
-            if (query_lower in book.title.lower()) or
-            (book.author and query_lower in book.author.lower())
-        ]
-
-    async def get_books_by_genre(self, genre: str) -> List[Book]:
-        """Получить книги по жанру"""
-        all_books = await self.get_all_books()
-        return [
-            book for book in all_books
-            if book.genre and genre.lower() in book.genre.lower()
-        ]
-
-    async def get_books_by_language(self, language: str) -> List[Book]:
-        """Получить книги по языку"""
-        all_books = await self.get_all_books()
-        return [
-            book for book in all_books
-            if book.language and language.lower() in book.language.lower()
-        ]
-
     # === HELPER METHODS ===
 
     async def format_book_info(self, book: Book) -> str:
@@ -161,39 +134,6 @@ class BooksService:
                 info += f"... и еще {len(book.quotes) - 3} цитат\n"
 
         return info
-
-    async def get_all_genres(self) -> List[str]:
-        """Получить все уникальные жанры"""
-        all_books = await self.get_all_books()
-        genres = set()
-
-        for book in all_books:
-            if book.genre:
-                genres.add(book.genre)
-
-        return sorted(list(genres))
-
-    async def get_all_languages(self) -> List[str]:
-        """Получить все уникальные языки"""
-        all_books = await self.get_all_books()
-        languages = set()
-
-        for book in all_books:
-            if book.language:
-                languages.add(book.language)
-
-        return sorted(list(languages))
-
-    async def get_all_formats(self) -> List[str]:
-        """Получить все уникальные форматы"""
-        all_books = await self.get_all_books()
-        formats = set()
-
-        for book in all_books:
-            if book.format:
-                formats.add(book.format)
-
-        return sorted(list(formats))
 
     async def add_quote_to_book(
         self,
