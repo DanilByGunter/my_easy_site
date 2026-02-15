@@ -96,7 +96,10 @@ class S3Service:
             s3_key = f"{folder}/{unique_filename}"
 
             # Скачиваем файл из Telegram
-            file_data = await bot.download_file(file_path)
+            file_data_io = await bot.download_file(file_path)
+
+            # Получаем байты из BytesIO объекта
+            file_data = file_data_io.getvalue()
 
             # Формируем URL для загрузки
             upload_url = f"{self.endpoint_url}/{self.bucket_name}/{s3_key}"

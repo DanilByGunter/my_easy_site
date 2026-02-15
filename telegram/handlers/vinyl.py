@@ -234,6 +234,23 @@ async def finish_adding_vinyl_with_data(message: Message, state: FSMContext):
     """Завершить добавление винила с данными"""
     data = await state.get_data()
 
+    # Проверяем наличие обязательных полей
+    if not data.get('artist') or not data.get('title'):
+        logger.error(f"Отсутствуют обязательные данные для создания винила: {data}")
+        try:
+            await message.edit_text(
+                "❌ Ошибка: отсутствуют данные об исполнителе или названии альбома.",
+                reply_markup=vinyl_menu_keyboard()
+            )
+        except Exception as edit_error:
+            logger.warning(f"Не удалось отредактировать сообщение об ошибке: {edit_error}")
+            await message.answer(
+                "❌ Ошибка: отсутствуют данные об исполнителе или названии альбома.",
+                reply_markup=vinyl_menu_keyboard()
+            )
+        await state.clear()
+        return
+
     try:
         async with get_db_session() as db:
             service = VinylService(db)
