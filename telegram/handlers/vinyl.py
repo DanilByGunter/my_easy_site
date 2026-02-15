@@ -129,13 +129,25 @@ async def process_year_selection(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-@router.callback_query(F.data == "manual_year")
+@router.callback_query(F.data == "manual_year", VinylStates.waiting_for_year)
 async def manual_year_input(callback: CallbackQuery, state: FSMContext):
-    """Ручной ввод года"""
+    """Ручной ввод года при добавлении"""
     await callback.message.edit_text(
         "📅 *Год выпуска*\n\n"
         "Введите год выпуска (например: 1975):",
         reply_markup=skip_keyboard(),
+        parse_mode="Markdown"
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "manual_year", VinylStates.waiting_for_edit_year)
+async def manual_year_input_edit(callback: CallbackQuery, state: FSMContext):
+    """Ручной ввод года при редактировании"""
+    await callback.message.edit_text(
+        "📅 *Редактирование года*\n\n"
+        "Введите новый год выпуска (например: 1975):",
+        reply_markup=cancel_keyboard(),
         parse_mode="Markdown"
     )
     await callback.answer()
@@ -165,9 +177,9 @@ async def process_year_manual(message: Message, state: FSMContext):
         )
 
 
-@router.callback_query(F.data.startswith("add_genre_"))
+@router.callback_query(F.data.startswith("add_genre_"), VinylStates.waiting_for_genres)
 async def add_genre(callback: CallbackQuery, state: FSMContext):
-    """Добавить жанр к альбому"""
+    """Добавить жанр к альбому при добавлении"""
     genre = callback.data.split("_", 2)[-1]
 
     data = await state.get_data()
@@ -190,9 +202,9 @@ async def add_genre(callback: CallbackQuery, state: FSMContext):
     await callback.answer(f"Добавлен жанр: {genre}")
 
 
-@router.callback_query(F.data == "genres_done")
+@router.callback_query(F.data == "genres_done", VinylStates.waiting_for_genres)
 async def ask_for_photo(callback: CallbackQuery, state: FSMContext):
-    """Запросить фото альбома"""
+    """Запросить фото альбома при добавлении"""
     await state.set_state(VinylStates.waiting_for_photo)
 
     await callback.message.edit_text(
@@ -223,9 +235,9 @@ async def process_photo(message: Message, state: FSMContext, bot: Bot):
     await finish_adding_vinyl_with_data(message, state)
 
 
-@router.callback_query(F.data == "skip_photo")
+@router.callback_query(F.data == "skip_photo", VinylStates.waiting_for_photo)
 async def skip_photo(callback: CallbackQuery, state: FSMContext):
-    """Пропустить загрузку фото"""
+    """Пропустить загрузку фото при добавлении"""
     await finish_adding_vinyl_with_data(callback.message, state)
     await callback.answer("Фото пропущено")
 
