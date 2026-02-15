@@ -317,8 +317,8 @@ async def cancel_action(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.edit_text(
         "❌ *Действие отменено*\n\n"
-        "Выберите другое действие:",
-        reply_markup=coffee_menu_keyboard(),
+        "Выберите раздел для работы:",
+        reply_markup=collections_menu_keyboard(),
         parse_mode="Markdown"
     )
     await callback.answer("Действие отменено")

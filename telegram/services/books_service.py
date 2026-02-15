@@ -135,6 +135,39 @@ class BooksService:
 
         return info
 
+    async def get_all_genres(self) -> List[str]:
+        """Получить все уникальные жанры из базы данных"""
+        all_books = await self.get_all_books()
+        genres = set()
+
+        for book in all_books:
+            if book.genre:
+                genres.add(book.genre)
+
+        return sorted(list(genres))
+
+    async def get_all_languages(self) -> List[str]:
+        """Получить все уникальные языки из базы данных"""
+        all_books = await self.get_all_books()
+        languages = set()
+
+        for book in all_books:
+            if book.language:
+                languages.add(book.language)
+
+        return sorted(list(languages))
+
+    async def get_all_formats(self) -> List[str]:
+        """Получить все уникальные форматы из базы данных"""
+        all_books = await self.get_all_books()
+        formats = set()
+
+        for book in all_books:
+            if book.format:
+                formats.add(book.format)
+
+        return sorted(list(formats))
+
     async def add_quote_to_book(
         self,
         book_id: str,

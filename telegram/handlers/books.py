@@ -11,7 +11,7 @@ from services.books_service import BooksService
 from states.books_states import BooksStates
 from keyboards.books_keyboards import (
     books_menu_keyboard, books_selection_keyboard, book_edit_fields_keyboard,
-    popular_genres_books_keyboard, languages_keyboard, book_formats_keyboard,
+    dynamic_genres_keyboard, dynamic_languages_keyboard, dynamic_formats_keyboard,
     confirm_delete_book_keyboard, cancel_keyboard, skip_keyboard
 )
 
@@ -102,10 +102,15 @@ async def process_author(message: Message, state: FSMContext):
     await state.update_data(author=author)
     await state.set_state(BooksStates.waiting_for_genre)
 
+    # Получаем существующие жанры из БД
+    async with get_db_session() as db:
+        service = BooksService(db)
+        existing_genres = await service.get_all_genres()
+
     await message.answer(
         "🎭 *Жанр книги*\n\n"
         "Выберите жанр книги:",
-        reply_markup=popular_genres_books_keyboard(),
+        reply_markup=dynamic_genres_keyboard(existing_genres),
         parse_mode="Markdown"
     )
 
@@ -118,10 +123,15 @@ async def process_genre_selection(callback: CallbackQuery, state: FSMContext):
     await state.update_data(genre=genre)
     await state.set_state(BooksStates.waiting_for_language)
 
+    # Получаем существующие языки из БД
+    async with get_db_session() as db:
+        service = BooksService(db)
+        existing_languages = await service.get_all_languages()
+
     await callback.message.edit_text(
         "🌐 *Язык книги*\n\n"
         "Выберите язык книги:",
-        reply_markup=languages_keyboard(),
+        reply_markup=dynamic_languages_keyboard(existing_languages),
         parse_mode="Markdown"
     )
     await callback.answer()
@@ -135,10 +145,15 @@ async def process_language_selection(callback: CallbackQuery, state: FSMContext)
     await state.update_data(language=language)
     await state.set_state(BooksStates.waiting_for_format)
 
+    # Получаем существующие форматы из БД
+    async with get_db_session() as db:
+        service = BooksService(db)
+        existing_formats = await service.get_all_formats()
+
     await callback.message.edit_text(
         "📚 *Формат книги*\n\n"
         "Выберите формат книги:",
-        reply_markup=book_formats_keyboard(),
+        reply_markup=dynamic_formats_keyboard(existing_formats),
         parse_mode="Markdown"
     )
     await callback.answer()
@@ -195,30 +210,45 @@ async def skip_field(callback: CallbackQuery, state: FSMContext):
         await state.update_data(author=None)
         await state.set_state(BooksStates.waiting_for_genre)
 
+        # Получаем существующие жанры из БД
+        async with get_db_session() as db:
+            service = BooksService(db)
+            existing_genres = await service.get_all_genres()
+
         await callback.message.edit_text(
             "🎭 *Жанр книги*\n\n"
             "Выберите жанр книги:",
-            reply_markup=popular_genres_books_keyboard(),
+            reply_markup=dynamic_genres_keyboard(existing_genres),
             parse_mode="Markdown"
         )
     elif current_state == BooksStates.waiting_for_genre.state:
         await state.update_data(genre=None)
         await state.set_state(BooksStates.waiting_for_language)
 
+        # Получаем существующие языки из БД
+        async with get_db_session() as db:
+            service = BooksService(db)
+            existing_languages = await service.get_all_languages()
+
         await callback.message.edit_text(
             "🌐 *Язык книги*\n\n"
             "Выберите язык книги:",
-            reply_markup=languages_keyboard(),
+            reply_markup=dynamic_languages_keyboard(existing_languages),
             parse_mode="Markdown"
         )
     elif current_state == BooksStates.waiting_for_language.state:
         await state.update_data(language=None)
         await state.set_state(BooksStates.waiting_for_format)
 
+        # Получаем существующие форматы из БД
+        async with get_db_session() as db:
+            service = BooksService(db)
+            existing_formats = await service.get_all_formats()
+
         await callback.message.edit_text(
             "📚 *Формат книги*\n\n"
             "Выберите формат книги:",
-            reply_markup=book_formats_keyboard(),
+            reply_markup=dynamic_formats_keyboard(existing_formats),
             parse_mode="Markdown"
         )
     elif current_state == BooksStates.waiting_for_format.state:
@@ -550,10 +580,15 @@ async def edit_genre(callback: CallbackQuery, state: FSMContext):
     """Редактировать жанр"""
     await state.set_state(BooksStates.waiting_for_edit_genre)
 
+    # Получаем существующие жанры из БД
+    async with get_db_session() as db:
+        service = BooksService(db)
+        existing_genres = await service.get_all_genres()
+
     await callback.message.edit_text(
         "🎭 *Редактирование жанра*\n\n"
         "Выберите новый жанр:",
-        reply_markup=popular_genres_books_keyboard(),
+        reply_markup=dynamic_genres_keyboard(existing_genres),
         parse_mode="Markdown"
     )
     await callback.answer()
@@ -572,10 +607,15 @@ async def edit_language(callback: CallbackQuery, state: FSMContext):
     """Редактировать язык"""
     await state.set_state(BooksStates.waiting_for_edit_language)
 
+    # Получаем существующие языки из БД
+    async with get_db_session() as db:
+        service = BooksService(db)
+        existing_languages = await service.get_all_languages()
+
     await callback.message.edit_text(
         "🌐 *Редактирование языка*\n\n"
         "Выберите новый язык:",
-        reply_markup=languages_keyboard(),
+        reply_markup=dynamic_languages_keyboard(existing_languages),
         parse_mode="Markdown"
     )
     await callback.answer()
@@ -594,10 +634,15 @@ async def edit_format(callback: CallbackQuery, state: FSMContext):
     """Редактировать формат"""
     await state.set_state(BooksStates.waiting_for_edit_format)
 
+    # Получаем существующие форматы из БД
+    async with get_db_session() as db:
+        service = BooksService(db)
+        existing_formats = await service.get_all_formats()
+
     await callback.message.edit_text(
         "📚 *Редактирование формата*\n\n"
         "Выберите новый формат:",
-        reply_markup=book_formats_keyboard(),
+        reply_markup=dynamic_formats_keyboard(existing_formats),
         parse_mode="Markdown"
     )
     await callback.answer()
@@ -651,6 +696,74 @@ async def process_edit_opinion(message: Message, state: FSMContext):
     """Обработать новое мнение"""
     opinion = message.text.strip()
     await update_book_field(message, state, opinion=opinion)
+
+
+# === ОБРАБОТЧИКИ ПОЛЬЗОВАТЕЛЬСКОГО ВВОДА ===
+
+@router.callback_query(F.data == "custom_book_genre")
+async def custom_genre_input(callback: CallbackQuery, state: FSMContext):
+    """Ручной ввод жанра"""
+    current_state = await state.get_state()
+
+    if current_state == BooksStates.waiting_for_genre.state:
+        await callback.message.edit_text(
+            "🎭 *Жанр книги*\n\n"
+            "Введите жанр книги:",
+            reply_markup=cancel_keyboard(),
+            parse_mode="Markdown"
+        )
+    elif current_state == BooksStates.waiting_for_edit_genre.state:
+        await callback.message.edit_text(
+            "🎭 *Редактирование жанра*\n\n"
+            "Введите новый жанр:",
+            reply_markup=cancel_keyboard(),
+            parse_mode="Markdown"
+        )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "custom_language")
+async def custom_language_input(callback: CallbackQuery, state: FSMContext):
+    """Ручной ввод языка"""
+    current_state = await state.get_state()
+
+    if current_state == BooksStates.waiting_for_language.state:
+        await callback.message.edit_text(
+            "🌐 *Язык книги*\n\n"
+            "Введите язык книги:",
+            reply_markup=cancel_keyboard(),
+            parse_mode="Markdown"
+        )
+    elif current_state == BooksStates.waiting_for_edit_language.state:
+        await callback.message.edit_text(
+            "🌐 *Редактирование языка*\n\n"
+            "Введите новый язык:",
+            reply_markup=cancel_keyboard(),
+            parse_mode="Markdown"
+        )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "custom_format")
+async def custom_format_input(callback: CallbackQuery, state: FSMContext):
+    """Ручной ввод формата"""
+    current_state = await state.get_state()
+
+    if current_state == BooksStates.waiting_for_format.state:
+        await callback.message.edit_text(
+            "📚 *Формат книги*\n\n"
+            "Введите формат книги:",
+            reply_markup=cancel_keyboard(),
+            parse_mode="Markdown"
+        )
+    elif current_state == BooksStates.waiting_for_edit_format.state:
+        await callback.message.edit_text(
+            "📚 *Редактирование формата*\n\n"
+            "Введите новый формат:",
+            reply_markup=cancel_keyboard(),
+            parse_mode="Markdown"
+        )
+    await callback.answer()
 
 
 async def update_book_field(message: Message, state: FSMContext, **kwargs):

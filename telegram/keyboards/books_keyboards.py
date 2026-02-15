@@ -60,18 +60,21 @@ def book_edit_fields_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def popular_genres_books_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура популярных жанров книг"""
+def dynamic_genres_keyboard(existing_genres=None) -> InlineKeyboardMarkup:
+    """Клавиатура жанров из БД + популярные"""
     builder = InlineKeyboardBuilder()
 
+    # Популярные жанры как fallback
     popular_genres = [
         "Фантастика", "Фэнтези", "Детектив", "Роман",
         "Классика", "Биография", "История", "Философия",
-        "Психология", "Бизнес", "Научпоп", "Поэзия",
-        "Драма", "Комедия", "Триллер", "Мистика"
+        "Психология", "Бизнес", "Научпоп", "Поэзия"
     ]
 
-    for genre in popular_genres:
+    # Используем жанры из БД, если есть, иначе популярные
+    genres_to_show = existing_genres if existing_genres else popular_genres
+
+    for genre in genres_to_show[:12]:  # Показываем максимум 12
         builder.add(
             InlineKeyboardButton(
                 text=genre,
@@ -84,21 +87,24 @@ def popular_genres_books_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="⏭️ Пропустить", callback_data="skip_field"),
         InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_action")
     )
-    builder.adjust(4, 4, 4, 4, 3)
+    builder.adjust(3, 3, 3, 3, 3)
     return builder.as_markup()
 
 
-def languages_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура выбора языков"""
+def dynamic_languages_keyboard(existing_languages=None) -> InlineKeyboardMarkup:
+    """Клавиатура языков из БД + популярные"""
     builder = InlineKeyboardBuilder()
 
-    languages = [
+    # Популярные языки как fallback
+    popular_languages = [
         "Русский", "English", "Español", "Français",
-        "Deutsch", "Italiano", "中文", "日本語",
-        "한국어", "العربية", "हिन्दी", "Português"
+        "Deutsch", "Italiano", "中文", "日本語"
     ]
 
-    for language in languages:
+    # Используем языки из БД, если есть, иначе популярные
+    languages_to_show = existing_languages if existing_languages else popular_languages
+
+    for language in languages_to_show[:12]:  # Показываем максимум 12
         builder.add(
             InlineKeyboardButton(
                 text=language,
@@ -115,16 +121,20 @@ def languages_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def book_formats_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура выбора форматов книг"""
+def dynamic_formats_keyboard(existing_formats=None) -> InlineKeyboardMarkup:
+    """Клавиатура форматов из БД + популярные"""
     builder = InlineKeyboardBuilder()
 
-    formats = [
+    # Популярные форматы как fallback
+    popular_formats = [
         "Бумажная", "Электронная", "Аудиокнига",
         "PDF", "EPUB", "FB2", "MOBI"
     ]
 
-    for format_type in formats:
+    # Используем форматы из БД, если есть, иначе популярные
+    formats_to_show = existing_formats if existing_formats else popular_formats
+
+    for format_type in formats_to_show[:12]:  # Показываем максимум 12
         builder.add(
             InlineKeyboardButton(
                 text=format_type,
@@ -139,6 +149,22 @@ def book_formats_keyboard() -> InlineKeyboardMarkup:
     )
     builder.adjust(3, 2, 2, 3)
     return builder.as_markup()
+
+
+# Оставляем старые функции для совместимости
+def popular_genres_books_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура популярных жанров книг"""
+    return dynamic_genres_keyboard()
+
+
+def languages_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора языков"""
+    return dynamic_languages_keyboard()
+
+
+def book_formats_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора форматов книг"""
+    return dynamic_formats_keyboard()
 
 
 def quotes_menu_keyboard() -> InlineKeyboardMarkup:
