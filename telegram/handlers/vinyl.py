@@ -252,20 +252,38 @@ async def finish_adding_vinyl_with_data(message: Message, state: FSMContext):
 
         await state.clear()
 
-        await message.edit_text(
-            info,
-            reply_markup=vinyl_menu_keyboard(),
-            parse_mode="Markdown"
-        )
+        # Безопасное редактирование сообщения
+        try:
+            await message.edit_text(
+                info,
+                reply_markup=vinyl_menu_keyboard(),
+                parse_mode="Markdown"
+            )
+        except Exception as edit_error:
+            # Если не удалось отредактировать, отправляем новое сообщение
+            logger.warning(f"Не удалось отредактировать сообщение: {edit_error}")
+            await message.answer(
+                info,
+                reply_markup=vinyl_menu_keyboard(),
+                parse_mode="Markdown"
+            )
 
         logger.info(f"Добавлен новый винил: {vinyl.artist} - {vinyl.title}")
 
     except Exception as e:
         logger.error(f"Ошибка при добавлении винила: {e}")
-        await message.edit_text(
-            "❌ Произошла ошибка при добавлении винила.",
-            reply_markup=vinyl_menu_keyboard()
-        )
+        # Безопасное редактирование сообщения об ошибке
+        try:
+            await message.edit_text(
+                "❌ Произошла ошибка при добавлении винила.",
+                reply_markup=vinyl_menu_keyboard()
+            )
+        except Exception as edit_error:
+            logger.warning(f"Не удалось отредактировать сообщение об ошибке: {edit_error}")
+            await message.answer(
+                "❌ Произошла ошибка при добавлении винила.",
+                reply_markup=vinyl_menu_keyboard()
+            )
         await state.clear()
 
 
@@ -692,26 +710,53 @@ async def update_vinyl_field(message: Message, state: FSMContext, **kwargs):
             if vinyl:
                 await service.commit()
                 info = await service.format_vinyl_info(vinyl)
-                await message.edit_text(
-                    f"✅ *Винил обновлен!*\n\n{info}",
-                    reply_markup=vinyl_menu_keyboard(),
-                    parse_mode="Markdown"
-                )
+                # Безопасное редактирование сообщения
+                try:
+                    await message.edit_text(
+                        f"✅ *Винил обновлен!*\n\n{info}",
+                        reply_markup=vinyl_menu_keyboard(),
+                        parse_mode="Markdown"
+                    )
+                except Exception as edit_error:
+                    logger.warning(f"Не удалось отредактировать сообщение: {edit_error}")
+                    await message.answer(
+                        f"✅ *Винил обновлен!*\n\n{info}",
+                        reply_markup=vinyl_menu_keyboard(),
+                        parse_mode="Markdown"
+                    )
                 logger.info(f"Обновлен винил с ID: {vinyl_id}")
             else:
-                await message.edit_text(
-                    "❌ Винил не найден",
-                    reply_markup=vinyl_menu_keyboard(),
-                    parse_mode="Markdown"
-                )
+                # Безопасное редактирование сообщения об ошибке
+                try:
+                    await message.edit_text(
+                        "❌ Винил не найден",
+                        reply_markup=vinyl_menu_keyboard(),
+                        parse_mode="Markdown"
+                    )
+                except Exception as edit_error:
+                    logger.warning(f"Не удалось отредактировать сообщение: {edit_error}")
+                    await message.answer(
+                        "❌ Винил не найден",
+                        reply_markup=vinyl_menu_keyboard(),
+                        parse_mode="Markdown"
+                    )
 
     except Exception as e:
         logger.error(f"Ошибка при обновлении винила: {e}")
-        await message.edit_text(
-            "❌ Произошла ошибка при обновлении винила",
-            reply_markup=vinyl_menu_keyboard(),
-            parse_mode="Markdown"
-        )
+        # Безопасное редактирование сообщения об ошибке
+        try:
+            await message.edit_text(
+                "❌ Произошла ошибка при обновлении винила",
+                reply_markup=vinyl_menu_keyboard(),
+                parse_mode="Markdown"
+            )
+        except Exception as edit_error:
+            logger.warning(f"Не удалось отредактировать сообщение об ошибке: {edit_error}")
+            await message.answer(
+                "❌ Произошла ошибка при обновлении винила",
+                reply_markup=vinyl_menu_keyboard(),
+                parse_mode="Markdown"
+            )
 
     await state.clear()
 
