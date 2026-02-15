@@ -38,8 +38,10 @@ async def create_tables():
 
 async def seed_data():
     async with AsyncSessionLocal() as session:
-        # Check if data already exists
-        existing_config = await session.get(SiteConfig, 1)
+	# Check if data already exists - use query instead of get with integer ID
+        from sqlalchemy import select
+        result = await session.execute(select(SiteConfig))
+        existing_config = result.first()
         if existing_config:
             print("Database already seeded, skipping...")
             return
